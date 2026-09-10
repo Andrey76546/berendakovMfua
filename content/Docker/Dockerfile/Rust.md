@@ -83,6 +83,17 @@ lto = true          # Link Time Optimization
 strip = true        # Убираем символы отладки — бинарник меньше
 ```
 
+### 5. Содержимое файла `.dockerignore` (блэе лист проекта)
+```text
+target/
+.git/
+.gitignore
+Dockerfile
+.dockerignore
+*.md
+```
+
+
 ### 5. Сборка и запуск
 
 В командной строке, находясь в папке `rust-docker`, выполнить:
