@@ -1,0 +1,14 @@
+[package]
+name = "rust-app"
+version = "0.1.0"
+edition = "2021"
+
+# Явно указываем имя бинарника, чтобы Dockerfile точно знал, что копировать
+[[bin]]
+name = "rust-app"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "z"     # Оптимизация под размер
+lto = true          # Link Time Optimization
+strip = true        # Убираем символы отладки — бинарник меньше

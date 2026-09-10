@@ -42,6 +42,63 @@ docker run -d \
 
 Создайте пароль администратора (минимум 8 символов) и войдите в админ-панель и в ней нажать кнопку **Home**, сделать скриншот.
 
+Чтобы получить токен для создания пользвателя, смотрите лог этого контейнера
+
+Получить лог:
+```shell
+docker logs portainer
+```
+
+Либо без токена
+
+Windows:
+```shell
+docker run -d `
+  --name portainer `
+  -p 9000:9000 `
+  -p 9443:9443 `
+  -v /var/run/docker.sock:/var/run/docker.sock `
+  -v portainer_data:/data `
+  --restart unless-stopped `
+  portainer/portainer-ce:latest `
+  --no-setup-token
+```
+Linux:
+```shell
+docker run -d \
+  --name portainer \
+  -p 9000:9000 \
+  -p 9443:9443 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  --restart unless-stopped \
+  portainer/portainer-ce:latest \
+  --no-setup-token
+```
+
+Если не появляется окно создания пароля, то выполните сл.действия:
+- `docker run --rm -v portainer_data:/data portainer/helper-reset-password`
+- Скопируйте логин и пароль после строки "Use the following password to login:"
+
+Либо создать пароль сразу при создании и запуске контейнера (пока не сработало):
+
+Windows
+```shell
+docker run -d `  --name portainer `  -p 9000:9000 `  -p 9443:9443 `  -v /var/run/docker.sock:/var/run/docker.sock `  -v portainer_data:/data `  --restart unless-stopped `  portainer/portainer-ce:latest `  --admin-password "&XF5871L[vjg2"
+```
+Linux
+```shell
+docker run -d \
+  --name portainer \
+  -p 9000:9000 \
+  -p 9443:9443 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  --restart unless-stopped \
+  portainer/portainer-ce:latest \
+  --admin-password "&XF5871L[vjg2"
+```
+
 ### Основные возможности
 
 Dashboard (Главная панель):
