@@ -94,7 +94,7 @@ Dockerfile
 ```
 
 
-### 5. Сборка и запуск
+### 6. Сборка и запуск
 
 В командной строке, находясь в папке `rust-docker`, выполнить:
 ```shell
@@ -110,7 +110,7 @@ docker run -it --rm rust-app
 
 > Вы должны увидеть: Hello from Rust inside Docker! 🦀
 
-### 6 Зайти в контейнер
+### 7 Зайти в контейнер
 
 ```shell
 docker run -it --rm --entrypoint sh rust-app
@@ -118,6 +118,10 @@ docker run -it --rm --entrypoint sh rust-app
 Запустить программу на Rust:
 ```shell
 ./rust-app
+```
+выйти из контейнера
+```shell
+exit
 ```
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
