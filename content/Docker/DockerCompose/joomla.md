@@ -90,6 +90,9 @@ docker compose up -d
 ```
 Проверка статуса
 ```shell
+docker compose ls
+```
+```shell
 docker compose ps -a
 ```
 Просмотр логов **Joomla**
