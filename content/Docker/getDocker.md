@@ -369,4 +369,8 @@ docker image prune -a
 docker rmi -f $(docker images -q)
 ```
 
+### Ссылки
+
+- [Docker Reminder](https://www.altlinux.org/Docker_Reminder)
+
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
