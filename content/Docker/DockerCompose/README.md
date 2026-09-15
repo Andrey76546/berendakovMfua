@@ -7,6 +7,7 @@
 - [PostgresSQL](/content/Docker/DockerCompose/PostgresSQL.md)
 - [PostgreSQL+pgAdmin](/content/Docker/DockerCompose/PostgreSQL_pgAdmin.md)
 - [drawDB](/content/Docker/DockerCompose/drawDB.md)
+- [LibreDB Studio](/content/Docker/DockerCompose/LibreDB_Studio.md)
 - [Homehub](/content/Docker/DockerCompose/Homehub.md)
 - [CloudBeaver](/content/Docker/DockerCompose/CloudBeaver.md)
 ---

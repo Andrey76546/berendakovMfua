@@ -119,6 +119,10 @@ docker system df -v
 ```shell
 docker volume prune -a
 ```
+и для кэша всех сборок
+```shell
+docker builder prune
+```
 
 > Удаление контейнера не приводит к удалению Docker образа!
 

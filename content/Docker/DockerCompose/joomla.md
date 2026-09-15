@@ -88,6 +88,8 @@ volumes:
 ```shell
 docker compose up -d
 ```
+- `-d` - существует директория
+
 Проверка статуса
 ```shell
 docker compose ls
