@@ -123,7 +123,7 @@ docker network inspect joomla-docker_joomla-network
   - Тип базы данных: `MySQLi` или `PDO MySQL` (подойдёт любой).
   - Имя сервера баз данных: `db` (это имя сервиса из нашего `compose.yml` файла).
   - Имя пользователя: `joomla_user`
-  - Пароль: `joomla_password`
+  - Пароль к БД: `joomla_password`
   - Имя базы данных: `joomla_db`
 
 Префикс таблиц: можно оставить по умолчанию или изменить для безопасности.
