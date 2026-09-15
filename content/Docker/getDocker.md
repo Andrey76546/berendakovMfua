@@ -103,6 +103,22 @@ docker image inspect hello-world
 ```shell
 docker rm 6f72bfc0ed02
 ```
+Получить сводку по диску Docker
+```shell
+docker system df
+```
+Получить сводку по всем томам
+```shell
+docker volume ls
+```
+```shell
+# Список томов с размером
+docker system df -v
+```
+Очистить все ненужные тома
+```shell
+docker volume prune -a
+```
 
 > Удаление контейнера не приводит к удалению Docker образа!
 

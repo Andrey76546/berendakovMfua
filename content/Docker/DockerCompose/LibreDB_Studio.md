@@ -124,6 +124,10 @@ docker ps -a | grep libredb-studio
 ```shell
 docker volume ls | grep libredb
 ```
+Для надёжности можно дополнительно удалить всё, что могло остаться от прежнего проекта (удаление для состояния "чистого листа" всего Docker)
+```shell
+docker system prune -a --volumes
+```
 удалить папку проекта
 ```shell
 cd .. ; rm -rf libredb-studio
