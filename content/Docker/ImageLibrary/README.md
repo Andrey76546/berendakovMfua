@@ -24,6 +24,7 @@
 1. [Pcb2gcode](/content/Docker/ImageLibrary/Pcb2gcode.md)
 1. [Alt Linux в Docker](/content/Docker/ImageLibrary/AltInDocker.md)
 1. [Ollama и Open WebUI+Ollama](/content/Docker/ImageLibrary/Ollama.md)
+1. [LibreDB Studio](/content/Docker/ImageLibrary/LibreDB_Studio.md)
 1. []()
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
