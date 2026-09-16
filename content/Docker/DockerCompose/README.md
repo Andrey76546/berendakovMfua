@@ -10,7 +10,9 @@
 - [LibreDB Studio](/content/Docker/DockerCompose/LibreDB_Studio.md)
 - [Homehub](/content/Docker/DockerCompose/Homehub.md)
 - [CloudBeaver](/content/Docker/DockerCompose/CloudBeaver.md)
+
 ---
+
 Эти проекты пока не обязательны
 - [videoeditor](https://github.com/trykimu/videoeditor)
 - [arcada](https://github.com/mehanix/arcada)
