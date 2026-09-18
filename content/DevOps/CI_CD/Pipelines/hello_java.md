@@ -221,7 +221,7 @@ docker run --rm `
 - Папка проекта должна быть в разрешённых для Docker Desktop дисках. Обычно C:\ разрешён по умолчанию, но если проект на D:\ — зайдите в Docker Desktop → Settings → Resources → File Sharing и добавьте диск
 - Первый запуск будет долгим
 
-- 2.2. Сборка Docker-образа
+- 2.2. Сборка Docker-образа (нужно находиться в каталоге проекта)
 ```shell
 docker build -t hello-java .
 ```
