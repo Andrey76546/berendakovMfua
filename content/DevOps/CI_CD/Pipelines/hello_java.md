@@ -1,8 +1,8 @@
 ## Pipeline CI на Java в GitHub Actions
 
-**Apache Maven** — это инструмент для автоматизации сборки проектов (чаще всего на Java), управления зависимостями и структурирования кода.
+**Apache Maven** — это инструмент для автоматизации сборки проектов (чаще всего на **Java**), управления зависимостями и структурирования кода.
 
-**Цель** - знакомство с Maven и Java CI, получить небольшой размер Docker-образа
+**Цель** - знакомство с `Maven` и `Java CI`, получить небольшой размер Docker-образа
 
 Что узнаете:
 - `maven` — `pom.xml`, фазы: `clean`, `verify`, `package`
@@ -11,6 +11,8 @@
 - `Multi-stage Docker` — зачем разделять сборку и запуск
 - `GitHub Actions` — `JDK`, кэш `Maven`, `docker build`
 - Разницу между `Maven`-сборкой и `Docker`-сборкой
+
+> `clean`, `verify`, `package` - фазы жизненного цикла Maven
 
 ### 1. Создайте на вашем компьютере, в корневом каталоге текущего пользователя такую структуру:
 
@@ -279,13 +281,15 @@ git push -u origin main
 ```
 > **После push откройте вкладку Actions в GitHub — workflow «Java CI» запустится автоматически.**
 
+> После успешного Actions (зелёная лампочка во вкладке Actions) можно добавить файл README.md, .gitignore и лицензию.
+
 ### 5. Если push не проходит
 
 > **`Repository not found`**
 > Проверьте, что репозиторий `hello-java` создан и URL в `git remote -v` совпадает с `https://github.com/ваш-логин/hello-java.git`.
 >
 > **`Authentication failed`**
-> GitHub больше не принимает пароль от аккаунта. Используйте Personal Access Token (Settings → Developer settings → Personal access tokens) или SSH-ключ.
+> GitHub больше не принимает пароль от аккаунта. Используйте Personal Access Token (Settings → Developer settings → Personal access tokens) или SSH-ключ. Или используйте VS Code.
 >
 > **`Rejected (non-fast-forward)`**
 > На GitHub уже есть коммит (например, README). Выполните:
@@ -296,4 +300,8 @@ git push -u origin main
 >
 > **`src refspec main does not match any`**
 > Вы ещё не сделали ни одного коммита. Выполните `git add .` и `git commit -m "..."`.
+
+***
+
+> Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
 
