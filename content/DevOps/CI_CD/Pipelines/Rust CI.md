@@ -1,1 +1,0 @@
-## Pipeline CI на Rust в GitHub Actions
