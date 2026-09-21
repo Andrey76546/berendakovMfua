@@ -247,7 +247,7 @@ OS: Linux
 
 ### 4. Запушить проект
 
-> **Если git впервые на этой машине, задайте имя и email:**
+> **Если впервые пушитесь на этом компьютере, задайте имя и email:**
 ```shell
 git config --global user.name "Ваше Имя"
 git config --global user.email "ваш@email.com"
@@ -272,7 +272,7 @@ git branch -M main
 ```
 5. Создание удалённой копии проекта
 ```shell
-git remote add origin https://github.com/username/hello-java.git
+git remote add origin https://github.com/ВАШ-USERNAME/hello-java.git
 ```
 где `username` — ваш логин на `GitHub`
 6. Пуш
@@ -281,7 +281,7 @@ git push -u origin main
 ```
 > **После push откройте вкладку Actions в GitHub — workflow «Java CI» запустится автоматически.**
 
-> После успешного Actions (зелёная лампочка во вкладке Actions) можно добавить файл README.md, .gitignore и лицензию.
+> **После успешного Actions (зелёная лампочка во вкладке Actions) можно добавить файл README.md, .gitignore и лицензию.**
 
 ### 5. Если push не проходит
 
