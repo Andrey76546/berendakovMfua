@@ -346,6 +346,8 @@ git push -u origin main
 - В правой колонке — вкладка `Packages`
 - Там будет пакет `hello-rust`
 
+![Image](/content/DevOps/CI_CD/img/16_workflow.png)
+
 ### 8. Сделать образ публичным
 
 По умолчанию образ в **GHCR** приватный — только вы можете его скачать.
@@ -358,27 +360,36 @@ git push -u origin main
 
 После этого `docker pull ghcr.io/<ВАШ-USERNAME>/hello-rust:latest` будет работать без авторизации — как `docker pull nginx`, например.
 
+Увидеть загруженный образ в своём Docker:
+```shell
+docker images
+```
+
 ### 9. Проверка локально
 
 **Git Bash / Linux / WSL / macOS:**
 ```shell
 read -p "Введите ваш GitHub username: " GITHUB_USER
-```
-```shell
 docker pull "ghcr.io/${GITHUB_USER}/hello-rust:latest"
-```
-```shell
 docker run --rm "ghcr.io/${GITHUB_USER}/hello-rust"
 ```
 PowerShell:
 ```powershell
 $GITHUB_USER = Read-Host "Введите ваш GitHub username"
-```
-```powershell
 docker pull "ghcr.io/$GITHUB_USER/hello-rust:latest"
-```
-```powershell
 docker run --rm "ghcr.io/$GITHUB_USER/hello-rust"
 ```
-Ожидаемый вывод — тот же, что при локальном запуске.
+Ожидаемый результат:
+```shell
+Hello from Rust in Docker! 🦀🐳
+OS: linux
+Arch: x86_64
+Hello, Docker!
+Sum 1..10 = 55
+```
+Удалить образ
+```shell
+docker rmi ghcr.io/rurewa/hello-rust:latest
+```
 
+> Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
