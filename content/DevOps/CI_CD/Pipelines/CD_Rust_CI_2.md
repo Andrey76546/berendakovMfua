@@ -2,7 +2,7 @@
 
 Pipeline CI/CD на Rust → GHCR
 
-> **Лабораторная работа выполняется в VS Code!**
+> **Все лабораторные работы выполняются в VS Code!**
 
 **GHCR** (GitHub Container Registry) — это реестр Docker-образов от **GitHub**. Работает так же, как **Docker Hub**, но не требует отдельной регистрации и токенов — всё через встроенный `GITHUB_TOKEN`
 
@@ -158,7 +158,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -166,7 +166,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -188,15 +188,18 @@ jobs:
 
       - name: Log in to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -204,7 +207,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -287,7 +290,7 @@ Arch: x86_64
 Hello, Docker!
 Sum 1..10 = 55
 ```
-В **GitHub Actions** команды cargo test, cargo build работают напрямую, потому что runner ubuntu-latest уже содержит Rust toolchain. Роль «чистого окружения» играет сам раннер (виртуальная машина на GitHub)
+В **GitHub Actions** команды `cargo test`, `cargo build` работают напрямую, потому что runner ubuntu-latest уже содержит `Rust toolchain`. Роль «чистого окружения» играет сам раннер (виртуальная машина на **GitHub**)
 
 ### 5. Создание пустого репозитория на GitHub
 
