@@ -10,10 +10,11 @@
     - [PHP с MySQL – приложение с базой данных](/content/DevOps/CI_CD/Pipelines/PHP.md)
     - [C++](/content/DevOps/CI_CD/Pipelines/cpp.md)
     - [Hello Java!](/content/DevOps/CI_CD/Pipelines/hello_java.md)
-    - [Pipeline CI на Rust в GitHub Actions](/content/DevOps/CI_CD/Pipelines/Rust_CI_2.md)
+    - [Pipeline CI на Rust в GitHub Actions 1](/content/DevOps/CI_CD/Pipelines/Rust_CI_1.md)
+    - [Pipeline CI на Rust в GitHub Actions 2](/content/DevOps/CI_CD/Pipelines/Rust_CI_2.md)
     - []()
 - CD
-    - []()
+    - [CI/CD на Rust с публикацией в GHCR](/content/DevOps/CI_CD/Pipelines/CD_Rust_CI_2.md)
     - []()
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!

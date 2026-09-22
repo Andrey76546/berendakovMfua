@@ -33,7 +33,7 @@ hello-rust/
 ```shell
 cd ~
 ```
-Создать папку со структурой проекта командой (в терминале):
+Структуру проекта можно сделать одной **bash**-командой, которая автоматически создаст все файлы и каталоги проекта:
 ```shell
 mkdir -p hello-rust/{.github/workflows,src,tests} && \
 cd hello-rust && \
@@ -274,9 +274,9 @@ Sum 1..10 = 55
 
 > ⚠️ **Не добавляйте README, .gitignore и лицензию — иначе push будет отклонён.**
 
-### Запушить проект
+### 6. Запушить проект
 
-Находясь в каталоге проекта:
+Находясь в каталоге проекта, выполнить последовательно:
 ```shell
 cd ~/hello-rust && git init && git add . && git commit -m "Initial commit: Rust app with Docker and CI" && git branch -M main
 ```

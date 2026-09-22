@@ -12,6 +12,8 @@ bashScripting.md
 - bash myScript.sh
 - ./myScript.sh
 
+![Скрин 1](/Linux/Bash/img/1.png)
+
 
 
 
