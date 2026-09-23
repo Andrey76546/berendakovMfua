@@ -15,5 +15,8 @@
 - CD
     - [CI/CD на Rust с публикацией в GHCR](/content/DevOps/CI_CD/Pipelines/CI_CD_Rust.md)
     - [CI/CD на Go с публикацией в GHCR](/content/DevOps/CI_CD/Pipelines/CI_CD_Go.md)
+    - [CI/CD на Go с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/Go_bin.md)
+    - [Python+PyInstaller](/content/DevOps/CI_CD/Pipelines/Python_PyInstaller_bin.md)
+    - [C#/.NET]()
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
