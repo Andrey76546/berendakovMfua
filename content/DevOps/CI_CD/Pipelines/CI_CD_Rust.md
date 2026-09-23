@@ -2,7 +2,7 @@
 
 Pipeline CI/CD на Rust → GHCR
 
-> **Лабораторная работа выполняется в VS Code!**
+> **Все лабораторные работы выполняются в VS Code!**
 
 **GHCR** (GitHub Container Registry) — это реестр Docker-образов от **GitHub**. Работает так же, как **Docker Hub**, но не требует отдельной регистрации и токенов — всё через встроенный `GITHUB_TOKEN`
 
@@ -158,7 +158,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -166,7 +166,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -188,15 +188,18 @@ jobs:
 
       - name: Log in to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -204,7 +207,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -287,7 +290,7 @@ Arch: x86_64
 Hello, Docker!
 Sum 1..10 = 55
 ```
-В **GitHub Actions** команды cargo test, cargo build работают напрямую, потому что runner ubuntu-latest уже содержит Rust toolchain. Роль «чистого окружения» играет сам раннер (виртуальная машина на GitHub)
+В **GitHub Actions** команды `cargo test`, `cargo build` работают напрямую, потому что runner ubuntu-latest уже содержит `Rust toolchain`. Роль «чистого окружения» играет сам раннер (виртуальная машина на **GitHub**)
 
 ### 5. Создание пустого репозитория на GitHub
 
@@ -343,6 +346,8 @@ git push -u origin main
 - В правой колонке — вкладка `Packages`
 - Там будет пакет `hello-rust`
 
+![Image](/content/DevOps/CI_CD/img/16_workflow.png)
+
 ### 8. Сделать образ публичным
 
 По умолчанию образ в **GHCR** приватный — только вы можете его скачать.
@@ -352,30 +357,42 @@ git push -u origin main
 - Справа: `Package settings`
 - Внизу: `Danger Zone` → `Change visibility` → `Public`
 - Подтвердите
+Откройте страницу пакета в режиме инкогнито (или в другом браузере, где вы не залогинены)
+
+`https://github.com/users/<ваш-username>/packages/container/hello-rust`
 
 После этого `docker pull ghcr.io/<ВАШ-USERNAME>/hello-rust:latest` будет работать без авторизации — как `docker pull nginx`, например.
+
+Увидеть загруженный образ в своём Docker:
+```shell
+docker images
+```
 
 ### 9. Проверка локально
 
 **Git Bash / Linux / WSL / macOS:**
 ```shell
 read -p "Введите ваш GitHub username: " GITHUB_USER
-```
-```shell
 docker pull "ghcr.io/${GITHUB_USER}/hello-rust:latest"
-```
-```shell
 docker run --rm "ghcr.io/${GITHUB_USER}/hello-rust"
 ```
 PowerShell:
 ```powershell
 $GITHUB_USER = Read-Host "Введите ваш GitHub username"
-```
-```powershell
 docker pull "ghcr.io/$GITHUB_USER/hello-rust:latest"
-```
-```powershell
 docker run --rm "ghcr.io/$GITHUB_USER/hello-rust"
 ```
-Ожидаемый вывод — тот же, что при локальном запуске.
+Ожидаемый результат:
+```shell
+Hello from Rust in Docker! 🦀🐳
+OS: linux
+Arch: x86_64
+Hello, Docker!
+Sum 1..10 = 55
+```
+Удалить образ
+```shell
+docker rmi ghcr.io/rurewa/hello-rust:latest
+```
 
+> Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
