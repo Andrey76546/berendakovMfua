@@ -136,8 +136,8 @@
             - CI Pipeline +
                 -
             - CD
-                - CI/CD на Rust с публикацией в GHCR +/-
-                - CI/CD на Go с публикацией в GHCR
+                - CI/CD на Rust с п83286991убликацией в GHCR +/-
+                - CI/CD на Go с публикацией в GHCR +/-
     - Docker Compose (DC) - в процессе +
         - drawDB +
         - DC c Joomla +
