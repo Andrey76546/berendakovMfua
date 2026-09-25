@@ -1,4 +1,4 @@
-## CI/CD на Python CLI с публикацией бинарников в GitHub Releases
+## CI/CD на Python CLI с публикацией бинарников в GitHub Releases (не доделан!)
 
 **Сборка Python CLI в один исполняемый файл через PyInstaller**
 
