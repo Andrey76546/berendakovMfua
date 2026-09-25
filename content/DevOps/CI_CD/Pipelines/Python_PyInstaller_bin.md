@@ -1,4 +1,4 @@
-## CI/CD на Python CLI с публикацией бинарников в GitHub Releases
+## CI/CD на Python CLI с публикацией бинарников в GitHub Releases (не доделан!)
 
 **Сборка Python CLI в один исполняемый файл через PyInstaller**
 
@@ -161,7 +161,7 @@ jobs:
           ruff format --check .
 
       - name: Run tests
-        run: pytest -v
+        run: python -m pytest -v
 
   # ===== Job 2: CD — публикация бинарников по тегу =====
   release:
@@ -197,7 +197,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build with PyInstaller
-        run: pyinstaller --onefile --name hello-python main.py
+        run:  python -m PyInstaller --onefile --name hello-python main.py
 
       - name: Rename binary (Unix)
         if: runner.os != 'Windows'
@@ -239,7 +239,6 @@ find . -type f | sort
 Git Bash / Linux / WSL / macOS:
 ```shell
 cd ~/hello-python
-mkdir -p ~/.pip-docker-cache
 docker run --rm \
   -u "$(id -u):$(id -g)" \
   -e HOME=/tmp \
@@ -247,7 +246,7 @@ docker run --rm \
   -v ~/.pip-docker-cache:/tmp/.cache/pip \
   -w /app \
   python:3.12-slim \
-  sh -c "pip install --cache-dir=/tmp/.cache/pip -r requirements.txt && pytest -v"
+  sh -c "pip install --cache-dir=/tmp/.cache/pip -r requirements.txt && python -m pytest -v"
 ```
 PowerShell (Windows):
 ```powershell
@@ -256,7 +255,7 @@ docker run --rm `
   -v "${PWD}:/app" `
   -w /app `
   python:3.12-slim `
-  sh -c "pip install -r requirements.txt && pytest -v"
+  sh -c "pip install -r requirements.txt && python -m pytest -v"
 ```
 Ожидаемый вывод:
 ```shell
@@ -277,7 +276,7 @@ docker run --rm \
   -v ~/.pip-docker-cache:/tmp/.cache/pip \
   -w /app \
   python:3.12-slim \
-  sh -c "pip install --cache-dir=/tmp/.cache/pip -r requirements.txt && pyinstaller --onefile --name hello-python main.py"
+  sh -c "pip install --cache-dir=/tmp/.cache/pip -r requirements.txt && python -m PyInstaller --onefile --name hello-python main.py"
 ```
 PowerShell (Windows):
 ```powershell
@@ -286,9 +285,9 @@ docker run --rm `
   -v "${PWD}:/app" `
   -w /app `
   python:3.12-slim `
-  sh -c "pip install -r requirements.txt && pyinstaller --onefile --name hello-python main.py"
+  sh -c "pip install -r requirements.txt && python -m PyInstaller --onefile --name hello-python main.py"
 ```
-После сборки в папке dist/ появится файл hello-python (на Linux). Запустить его можно в том же Docker-контейнере:
+После сборки в папке dist/ появится файл hello-python (на Linux). Запустить бинарник можно в чистом контейнере с Debian:
 ```shell
 docker run --rm \
   -v "$(pwd)/dist":/dist \
@@ -315,7 +314,7 @@ Sum 1..10 = 55
 
 ### 5. Запушить проект
 
-На всякий случай вернёмся в каталок проекта
+На всякий случай вернёмся в каталог проекта
 ```shell
 cd ~/hello-python
 ```
@@ -410,8 +409,10 @@ Sum 1..10 = 55
 
 Для следующего релиза — обновите версию в pyproject.toml и hello/__init__.py, затем:
 ```shell
+git add .
+git commit -m "Bump version to 1.1.0"
 git tag v1.1.0
-git push origin v1.1.0
+git push origin main --tags
 ```
 GitHub создаст новый Release v1.1.0, старый v1.0.0 останется доступным.
 
@@ -420,9 +421,9 @@ GitHub создаст новый Release v1.1.0, старый v1.0.0 остан�
 - Python — pyproject.toml, venv, pip, python -m
 - pytest — тесты и их структура
 - ruff — быстрый линтер и форматтер для Python
-- PyInstaller — --onefile, упаковка интерпретатора и зависимостей
 - Матричные сборки — 3 ОС параллельно, потому что Python не cross-compile
 - GitHub Actions — Python toolchain, кэш pip, pytest, pyinstaller
+- **PyInstaller** — `--onefile`, упаковка интерпретатора и зависимостей
 - GitHub Releases — публикация бинарников через softprops/action-gh-release
 - Семантическое версионирование — теги v1.0.0, v1.1.0
 - Разницу между CI и CI/CD
