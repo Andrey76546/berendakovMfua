@@ -31,6 +31,81 @@
 1. **Фиксация** - `git commit -m 'Some message'`
 1. **Синхронизация** - удалённой копией текущего репозитория - `git push` и `git pull`
 
+### Что можно сохранять в git?
+
+1. Любые текстовые файлы, объёмом < ~ 40 mb.
+1. Изображения, документы, mp3, PDF, короткие видео и т.п.
+1. Все имена файлов и каталогов только по-английски без пробелов и спец.символов!
+
+### Основные команды Git
+
+Получить версию установленного Git:
+```shell
+git version
+```
+или
+```shell
+git --version
+```
+Получить справку
+```shell
+git help
+```
+**Сменить текстовый редактор по умолчанию**
+На `Micro` (проще для новичков)
+```shell
+git config --global core.editor "micro"
+```
+На `Nano` (чуть сложней для новичков)
+```shell
+git config --global core.editor "nano"
+```
+На `VS Code` (элементарен для новичков)
+```shell
+git config --global core.editor "code --wait"
+```
+**Представиться системе Git**
+Сообщить свой никнэйм
+```shell
+git config --global user.name "Fixic"
+```
+Сообщить свой эмэйл
+```shell
+git config --global user.email "my_email@mail.ru"
+```
+
+> **Если вы на чужом компьютере, то вместо `--global` используйте `--local`**
+
+#### Клонирование репозитория
+
+```shell
+git clone https://gitflic.ru/project/rurewa/mfua.git
+```
+открыть папку клонированного репозитория
+```shell
+cd folder_name
+```
+Получить статус текущего репозитория
+```shell
+git status
+```
+Получить состояние удалённого репозитория
+```shell
+git remote show origin
+```
+Получить локальные ветки текущего репозитория
+```shell
+git branch
+```
+```shell
+git branch --v
+```
+
+
+
+
+
+
 
 
 
