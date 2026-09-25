@@ -12,7 +12,7 @@
     - [Hello Java!](/content/DevOps/CI_CD/Pipelines/hello_java.md)
     - [Pipeline CI на Rust в GitHub Actions 1](/content/DevOps/CI_CD/Pipelines/Rust_CI_1.md)
     - []()
-- CD
+-  CI/CD
     - [CI/CD на Rust с публикацией в GHCR](/content/DevOps/CI_CD/Pipelines/CI_CD_Rust.md)
     - [CI/CD на Go с публикацией в GHCR](/content/DevOps/CI_CD/Pipelines/CI_CD_Go.md)
     - [CI/CD на Go с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/Go_bin.md)
