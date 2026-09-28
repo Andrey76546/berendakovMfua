@@ -11,7 +11,6 @@ docker version
 ```shell
 docker --version
 ```
-
 Получить сводку по диску Docker
 ```shell
 docker system df
@@ -20,12 +19,8 @@ docker system df
 ```shell
 docker volume ls
 ```
-Получить сводку по всем томам
+Получить список томов с размером
 ```shell
-docker volume ls
-```
-```shell
-# Список томов с размером
 docker system df -v
 ```
 Очистить все ненужные тома

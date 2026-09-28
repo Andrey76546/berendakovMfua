@@ -1,4 +1,4 @@
-## CI/CD на Python CLI с публикацией бинарников в GitHub Releases (не доделан!)
+## CI/CD на Python CLI с публикацией бинарников в GitHub Releases
 
 **Сборка Python CLI в один исполняемый файл через PyInstaller**
 
@@ -13,11 +13,11 @@
 Что узнаете/вспомните:
 - **python** — виртуальные окружения (venv), pip, запуск модулей (python -m)
 - Встроенные тесты — pytest или unittest
-- **PyInstaller** — --onefile, .spec-файл, встраивание версии
+- **PyInstaller** — `--onefile`, упаковка интерпретатора и зависимостей
 - **Cross-compilation** в Python — почему её нет (в отличие от Go)
 - Матричные сборки в GitHub Actions — 3 ОС параллельно
 - **softprops/action-gh-release** — публикация артефактов
-- Семантическое версионирование — теги v1.0.0
+- Семантическое версионирование — теги `v0.1.0`, `v0.2.0`
 
 Ключевое отличие от **Go/Rust**:
 
@@ -275,8 +275,10 @@ docker run --rm \
   -v "$(pwd)":/app \
   -v ~/.pip-docker-cache:/tmp/.cache/pip \
   -w /app \
-  python:3.12-slim \
-  sh -c "pip install --cache-dir=/tmp/.cache/pip -r requirements.txt && python -m PyInstaller --onefile --name hello-python main.py"
+  python:3.12 \
+  sh -c "pip install --cache-dir=/tmp/.cache/pip -r requirements.txt && \
+         python -m PyInstaller --onefile --name hello-python main.py && \
+         ls -la dist/"
 ```
 PowerShell (Windows):
 ```powershell
@@ -284,7 +286,7 @@ cd ~/hello-python
 docker run --rm `
   -v "${PWD}:/app" `
   -w /app `
-  python:3.12-slim `
+  python:3.12 `
   sh -c "pip install -r requirements.txt && python -m PyInstaller --onefile --name hello-python main.py"
 ```
 После сборки в папке dist/ появится файл hello-python (на Linux). Запустить бинарник можно в чистом контейнере с Debian:
@@ -303,8 +305,7 @@ Arch: x86_64
 Hello, GitHub!
 Sum 1..10 = 55
 ```
-Важно: бинарник, собранный в Linux-контейнере, не запустится на Windows или macOS. PyInstaller не умеет cross-compilation — под каждую ОС нужна своя сборка. Именно поэтому в CI мы используем матрицу с тремя runner'ами
-
+Важно: бинарник, собранный в Linux-контейнере, не запустится на Windows или macOS. PyInstaller не умеет cross-compilation — под каждую ОС нужна своя сборка. Именно поэтому в CI мы используем матрицу с тремя runner'ами.
 
 ### 4. Создание пустого репозитория на GitHub
 
@@ -343,7 +344,7 @@ git push -u origin main
 
 ### 6. Первый запуск CI (без релиза)
 
-После `push` в `main` откройте вкладку **Actions** в **GitHub**.
+После `push` в `main` откройте вкладку **Actions** в **GitHub**. **Workflow** выполняется ~2–3 минуты. После успешного Actions (зелёная лампочка во вкладке Actions) можно продолжить выполнение задания.
 
 Что произойдёт:
 - **Job test** запустится и пройдёт все проверки: `ruff check`, `ruff format --check`, `pytest`
@@ -354,17 +355,19 @@ git push -u origin main
 
 Когда код в main стабилен — создайте тег:
 ```shell
-git tag v1.0.0
-git push origin v1.0.0
+git tag v0.1.0
+git push origin v0.1.0
 ```
+**Workflow** выполняется **~2–3** минуты. После успешного Actions (зелёная лампочка во вкладке Actions).
+
 Что произойдёт:
 - **test** — снова прогонит тесты
 - **release** — запустится, соберёт бинарники параллельно на 3 ОС
-- Создастся **GitHub Release v1.0.0** с прикреплёнными файлами
+- Создастся **GitHub Release v0.1.0** с прикреплёнными файлами
 Проверка:
 `https://github.com/<ВАШ-USERNAME>/hello-python/releases`
 
-Там должен быть релиз **v1.0.0** с 3 файлами:
+Там должен быть релиз **v0.1.0** с 3 файлами:
 
 * hello-python-linux-x64
 * hello-python-macos-arm64
@@ -375,23 +378,22 @@ git push origin v1.0.0
 
 Linux:
 ```shell
-wget https://github.com/<ВАШ-USERNAME>/hello-python/releases/download/v1.0.0/hello-python-linux-x64
-chmod +x hello-python-linux-x64
-./hello-python-linux-x64
+read -p "Введите ваш GitHub username: " GITHUB_USER
+wget "https://github.com/${GITHUB_USER}/hello-python/releases/download/v0.1.0/hello-python-linux-x64" -O hello-python
+chmod +x hello-python
+./hello-python
 ```
 macOS (Apple Silicon):
 ```shell
-curl -L -o hello-python-macos-arm64 \
-  https://github.com/<ВАШ-USERNAME>/hello-python/releases/download/v1.0.0/hello-python-macos-arm64
-chmod +x hello-python-macos-arm64
-./hello-python-macos-arm64
+read -p "Введите ваш GitHub username: " GITHUB_USER
+curl -L "https://github.com/${GITHUB_USER}/hello-python/releases/download/v0.1.0/hello-python-macos-arm64" -o hello-python
+chmod +x hello-python
+./hello-python
 ```
 Windows (PowerShell):
 ```powershell
-Invoke-WebRequest `
-  -Uri "https://github.com/<ВАШ-USERNAME>/hello-python/releases/download/v1.0.0/hello-python-windows-x64.exe" `
-  -OutFile "hello-python.exe"
-
+$USERNAME = Read-Host "Введите ваш GitHub username"
+Invoke-WebRequest -Uri "https://github.com/$USERNAME/hello-python/releases/download/v0.1.0/hello-python-windows-x64.exe" -OutFile "hello-python.exe"
 .\hello-python.exe
 ```
 Ожидаемый вывод:
@@ -405,17 +407,213 @@ Sum 1..10 = 55
 ```
 Примечание: на **macOS** при первом запуске может появиться предупреждение безопасности. Обходится: `Системные настройки` → `Приватность` и `безопасность` → `Всё равно открыть`.
 
-### 9. Создание нового релиза (опционально)
+### 9. Обновление релиза
 
-Для следующего релиза — обновите версию в pyproject.toml и hello/__init__.py, затем:
+Внесите изменения в код (например, в `main.py`), обновите версию приложения до 0.2.0 и создайте новый git-тег. Старый релиз остаётся нетронутым — пользователи могут скачать любую версию.
+
+> ⚠️ **Релизы в GitHub неизменяемы.** Нельзя перезаписать файлы внутри `v0.1.0`. Для нового кода — новая версия.
+
+#### 9.1. Определите тип изменений
+
+По **семантическому версионированию** (`MAJOR.MINOR.PATCH`):
+
+| Что изменили | Какую версию | Пример |
+|--------------|--------------|--------|
+| Исправили баг | patch | `0.1.0` → `0.1.1` |
+| Добавили функцию | minor | `0.1.0` → `0.2.0` |
+| Сломали совместимость | major | `0.1.0` → `1.0.0` |
+
+Наш выбор — 0.2.0
+
+#### 9.2. Обновите № версии в двух файлах
+
+**`pyproject.toml`:**
+```toml
+[project]
+name = "hello-python"
+version = "0.2.0"    # ← новая версия
+```
+
+**`hello/__init__.py`:**
+```python
+__version__ = "0.2.0"    # ← та же версия
+```
+
+> ⚠️ **Оба файла должны совпадать.** Если забыть один — в бинарнике останется старая версия!
+
+#### 9.3. Проверьте форматирование
+
+CI запускает `ruff format --check` — если код не отформатирован, **workflow** упадёт. Проверьте локально **до push**:
+
+```shell
+cd ~/hello-python
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -e HOME=/tmp \
+  -v "$(pwd)":/app \
+  -w /app \
+  python:3.12 \
+  sh -c "pip install ruff==0.7.1 && python -m ruff format . && python -m ruff check ."
+```
+
+**Ожидаемый вывод:**
+```
+1 file reformatted, 3 files left unchanged
+All checks passed!
+```
+
+#### 9.4. Проверьте тесты
+
+```shell
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -e HOME=/tmp \
+  -v "$(pwd)":/app \
+  -w /app \
+  python:3.12 \
+  sh -c "pip install -r requirements.txt && python -m pytest -v"
+```
+
+**Ожидаемый вывод:**
+```
+tests/test_greeting.py::test_greet PASSED
+tests/test_greeting.py::test_sum_range PASSED
+========================= 2 passed in 0.12s =========================
+```
+
+#### 9.5. Закоммитьте и запушьте
+
 ```shell
 git add .
-git commit -m "Bump version to 1.1.0"
-git tag v1.1.0
-git push origin main --tags
+git commit -m "feat: bump version to 0.2.0"
+git push origin main
 ```
-GitHub создаст новый Release v1.1.0, старый v1.0.0 останется доступным.
 
+**Что произойдёт:**
+- ✅ Job `test` пройдёт проверки
+- ⏭️ Job `release` будет **пропущен** (это push в ветку, не тег)
+
+#### 9.6. Создайте новый тег
+
+Только когда код в `main` стабилен и **CI** в **Actions** зелёный:
+```shell
+git tag v0.2.0
+git push origin v0.2.0
+```
+**Что произойдёт:**
+- ✅ `test` — снова прогонит тесты
+- ✅ `release` — соберёт 3 бинарника (Linux, macOS, Windows)
+- ✅ Создастся **новый Release** `v0.2.0`
+
+#### 9.7. Проверьте результат
+
+```
+https://github.com/<ВАШ-USERNAME>/hello-python/releases
+```
+
+Там будет **два релиза**:
+- `v0.1.0` — старый (не тронут)
+- `v0.2.0` — новый (с изменениями)
+
+Скачайте новый бинарник и проверьте (WSL/Linux):
+```shell
+cd ~
+read -p "Введите ваш GitHub username: " GITHUB_USER
+URL="https://github.com/${GITHUB_USER}/hello-python/releases/download/v0.2.0/hello-python-linux-x64"
+
+wget "$URL" -O hello-python
+chmod +x hello-python
+./hello-python
+```
+macOS:
+```shell
+cd ~
+read -p "Введите ваш GitHub username: " GITHUB_USER
+URL="https://github.com/${GITHUB_USER}/hello-python/releases/download/v0.2.0/hello-python-macos-arm64"
+
+curl -L "$URL" -o hello-python
+chmod +x hello-python
+./hello-python
+```
+Windows:
+```powershell
+cd ~
+$USERNAME = Read-Host "Введите ваш GitHub username"
+$URL = "https://github.com/$USERNAME/hello-python/releases/download/v0.2.0/hello-python-windows-x64.exe"
+
+Invoke-WebRequest -Uri $URL -OutFile "hello-python.exe"
+
+.\hello-python.exe
+```
+**Ожидаемый вывод:**
+```
+hello-python version 0.2.0
+Hello from Python! 🐍📦
+OS: linux
+Arch: x86_64
+Hello, GitHub!
+Sum 1..10 = 55
+```
+
+#### 9.8. Если ошиблись в теге
+
+Например, создали `v0.2.0`, но забыли обновить версию в одном из файлов.
+
+**Удалить тег локально:**
+```shell
+git tag -d v0.2.0
+```
+
+**Удалить тег на GitHub:**
+```shell
+git push origin :refs/tags/v0.2.0
+```
+
+**Удалить Release на GitHub:**
+Откройте `https://github.com/<ВАШ-USERNAME>/hello-python/releases`, у нужного релиза нажмите **Delete**.
+
+**Исправить код и повторить:**
+
+```shell
+code hello/__init__.py
+git add .
+git commit -m "fix: correct version in __init__.py"
+git push origin main
+
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+#### 9.9. Краткая шпаргалка
+
+```shell
+# 1. Изменить код
+code main.py
+
+# 2. Обновить версию в двух файлах
+code pyproject.toml
+code hello/__init__.py
+
+# 3. Проверить формат и тесты
+docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+  -v "$(pwd)":/app -w /app python:3.12 \
+  sh -c "pip install ruff==0.7.1 && python -m ruff format . && python -m ruff check ."
+
+docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+  -v "$(pwd)":/app -w /app python:3.12 \
+  sh -c "pip install -r requirements.txt && python -m pytest -v"
+
+# 4. Закоммитить и запушить
+git add .
+git commit -m "feat: bump version to 0.2.0"
+git push origin main
+
+# 5. Создать новый тег
+git tag v0.2.0
+git push origin v0.2.0
+
+# 6. Проверить: https://github.com/<username>/hello-python/releases
+```
 
 Что вы освоили:
 - Python — pyproject.toml, venv, pip, python -m
@@ -425,7 +623,8 @@ GitHub создаст новый Release v1.1.0, старый v1.0.0 остан�
 - GitHub Actions — Python toolchain, кэш pip, pytest, pyinstaller
 - **PyInstaller** — `--onefile`, упаковка интерпретатора и зависимостей
 - GitHub Releases — публикация бинарников через softprops/action-gh-release
-- Семантическое версионирование — теги v1.0.0, v1.1.0
+- Семантическое версионирование — теги `v0.1.0`, `v0.2.0`
+- **Обновление релиза** — полный цикл: версия → формат → тесты → тег → новый Release
 - Разницу между CI и CI/CD
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
