@@ -124,9 +124,9 @@ winget install Microsoft.Teams Git.Git Microsoft.VisualStudioCode Docker.DockerD
 
 Открыть **Powersheell / Git-Bash / Terminal**
 
-Выбрать текстовый редактор **Micro** по умолчанию для **Windows/Linux**
+Выбрать текстовый редактор **VS Code** по умолчанию для **Windows/Linux**
 ```shell
-git config --global core.editor "micro"
+git config --global core.editor "code"
 ```
 Представиться системе **Git**:
 ```shell
