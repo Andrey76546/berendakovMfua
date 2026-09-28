@@ -187,7 +187,7 @@ git pull && git push
 ```
 или более "мягкий" вариант
 ```shell
-git getch && git push
+git fetch && git push
 ```
 или, если не получилось с 1-го раза запушить, то:
 ```shell
