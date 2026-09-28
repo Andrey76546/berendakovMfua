@@ -270,9 +270,8 @@ git checkout master
 Показать информацию об удалённом репозитории
 
 Показать источники
-```git remote -v```
-
-```git remote show origin```
+- `git remote -v`
+- `git remote show origin`
 
 ### Работа с git-ветками
 
@@ -284,7 +283,7 @@ git branch
 ```shell
 git branch -r
 ```
-или
+или все ветки
 ```shell
 git branch --all
 ```
