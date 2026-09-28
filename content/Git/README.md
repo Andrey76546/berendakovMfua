@@ -332,9 +332,7 @@ git push origin --delete test
 ```shell
 git switch master
 ```
-
 и выполняем слияние 2-х веток в одну
-
 ```shell
 git merge anybranch
 ```
