@@ -187,7 +187,7 @@ git pull && git push
 ```
 или более "мягкий" вариант
 ```shell
-git getch && git push
+git fetch && git push
 ```
 или, если не получилось с 1-го раза запушить, то:
 ```shell
@@ -270,9 +270,8 @@ git checkout master
 Показать информацию об удалённом репозитории
 
 Показать источники
-```git remote -v```
-
-```git remote show origin```
+- `git remote -v`
+- `git remote show origin`
 
 ### Работа с git-ветками
 
@@ -284,7 +283,7 @@ git branch
 ```shell
 git branch -r
 ```
-или
+или все ветки
 ```shell
 git branch --all
 ```
@@ -333,9 +332,7 @@ git push origin --delete test
 ```shell
 git switch master
 ```
-
 и выполняем слияние 2-х веток в одну
-
 ```shell
 git merge anybranch
 ```
