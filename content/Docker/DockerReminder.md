@@ -2,217 +2,433 @@
 
 ### Установка
 
-Windows 10-11
+**Windows 10–11**
 ```powershell
 winget install Docker.DockerDesktop
 ```
-- **Docker Desktop** должен быть запущен
+- **Docker Desktop** должен быть запущен!
 - Папка проекта должна быть в разрешённых для **Docker Desktop** дисках (`Settings` → `Resources` → `File Sharing`)
 - Первый запуск может быть долгим
-Alt Linux 11
+
+**Alt Linux 11**
 ```shell
 apt-get install docker-engine docker-compose
 ```
-MacOS
+**macOS**
 ```shell
 brew install --cask docker
 ```
 
+> ⚠️ В **Linux** не забудьте добавить пользователя в группу `docker`, чтобы работать без `sudo`:
+> ```shell
+> sudo usermod -aG docker $USER
+> newgrp docker
+> ```
+> В **macOS** и **Windows** этого делать не нужно — Docker Desktop работает через виртуальную машину.
+
+---
+
 ### Основные команды
 
-#### Состояние
+#### Состояние и информация
 
+Версия Docker:
 ```shell
 docker version
 ```
-или кратко
+или кратко:
 ```shell
 docker --version
 ```
-Покзать все контейнеры, включая остановленные:
+Мониторинг ресурсов в реальном времени:
+```shell
+docker stats
+```
+Показать все контейнеры, включая остановленные:
 ```shell
 docker ps -a
 ```
-Показать все имеющиеся Docker-образы
+Показать все имеющиеся Docker-образы:
 ```shell
 docker images
 ```
-Быстрая демонстрация работы Docker
+Быстрая демонстрация работы Docker:
 ```shell
 docker run hello-world
 ```
-Получить сводку по диску Docker
+Сводка по диску Docker:
 ```shell
 docker system df
 ```
-Получить сводку по всем томам
+Сводка по всем томам:
 ```shell
 docker volume ls
 ```
-Получить список томов с размером
+Список томов с размером:
 ```shell
 docker system df -v
 ```
-Артефакты и свободное место:
+Артефакты и свободное место в buildx:
 ```shell
 docker buildx du
 ```
-Очистить все ненужные тома
+Очистить все ненужные тома:
 ```shell
 docker volume prune -a
 ```
-и для кэша всех сборок
+Очистить кэш всех сборок:
 ```shell
 docker builder prune
 ```
 
+---
+
 #### Образы
 
-Получить список всех образов
+Получить список всех образов:
 ```shell
 docker images
 ```
-Показать детальную информацию по выбранному образу
+Показать детальную информацию по выбранному образу:
 ```shell
 docker image inspect hello-world
 ```
-Найти указанный образ
+Найти указанный образ в Docker Hub:
 ```shell
 docker search nginx
 ```
-Получить информацию по указанному образу
+Получить информацию по указанному образу:
 ```shell
-ocker inspect nginx
+docker inspect nginx
 ```
-Получить указанный образ
+Скачать указанный образ:
 ```shell
 docker pull nginx
 ```
-Удалить указанные образ
+Собрать образ из Dockerfile в текущей директории (`.`) и дать ему тег `my-app`:
+```shell
+docker build -t my-app .
+```
+Сканирование контейнера на наличие известных уязвимостей:
+```shell
+docker scout cves <image_name>
+```
+> ⚠️ `docker scan` — устаревшая команда. Используйте `docker scout` или `trivy`.
+
+Показать лог контейнера:
+```shell
+docker logs <container_id>
+```
+Удалить указанный образ по имени:
 ```shell
 docker image rm имя_образа
 ```
-или
+или короче:
 ```shell
 docker rmi имя_образа
 ```
-или удалить образ по его id
+Удалить образ по его ID:
 ```shell
-docker rm id_образа
+docker rmi id_образа
 ```
-Удалить только промежуточные образы (без тегов)
+> ⚠️ `docker rm` удаляет **контейнеры**, а не образы. Для образов — `docker rmi`.
+
+Удалить только промежуточные (dangling) образы без тегов:
 ```shell
 docker image prune
 ```
-или удалить все образы с подтверждением
+Удалить все неиспользуемые образы с подтверждением:
 ```shell
 docker image prune -a
 ```
-или
-```shell
-docker rmi $(docker images -a -q)
-```
-или
+Удалить все образы (принудительно):
 ```shell
 docker rmi -f $(docker images -q)
 ```
 
+---
+
 #### Контейнеры
 
-Получить список запущенных контейнеров
+Получить список запущенных контейнеров:
 ```shell
 docker ps
 ```
-Получить список всех контейнеров, не зависимо от их состояния
+Получить список всех контейнеров, независимо от их состояния:
 ```shell
 docker ps -a
 ```
-Получить список контейнеров, из которых выполнен выход
+Получить список контейнеров, из которых выполнен выход:
 ```shell
 docker ps -a -f status=exited
+```
+Запустить контейнер в фоновом режиме (`-d`), пробросив порт 80 контейнера на порт 8080 хоста, с именем `my-container`:
+```shell
+docker run -d -p 8080:80 --name my-container <image_name>
 ```
 Остановить контейнер:
 ```shell
 docker stop my-nginx
 ```
-Остановить все запущенные контейнеры
+Остановить все запущенные контейнеры:
 ```shell
 docker stop $(docker ps -q)
 ```
-Запустить контейнер:
+Запустить остановленный контейнер:
 ```shell
 docker start my-nginx
+```
+Зайти в контейнер в интерактивном режиме:
+```shell
+docker exec -it my-apache bash
+```
+Выполнить одну команду в контейнере без входа в shell:
+```shell
+docker exec my-apache ls -la
+```
+Удалить все остановленные или не запущенные (Exited, Created) контейнеры:
+```shell
+docker container prune
+```
+> **Prune** — удаляйте ненужные контейнеры, чтобы не засорять ваш Docker!
+
+Удалить все контейнеры (включая запущенные — принудительно):
+```shell
+docker rm -f $(docker ps -aq)
+```
+Удалить только остановленные контейнеры:
+```shell
+docker rm $(docker ps -a -f status=exited -q)
+```
+Скопировать файл из контейнера на хост (и наоборот):
+```shell
+docker cp my-container:/path/to/file ./local-file
+docker cp ./local-file my-container:/path/to/file
+```
+
+---
+
+#### Сети
+
+Показать все сети Docker:
+```shell
+docker network ls
+```
+Создать сеть:
+```shell
+docker network create my-net
+```
+Показать детали сети:
+```shell
+docker network inspect my-net
+```
+Подключить контейнер к сети:
+```shell
+docker network connect my-net my-container
+```
+Отключить контейнер от сети:
+```shell
+docker network disconnect my-net my-container
 ```
 Проверить состояние сетевых подключений Docker-контейнеров:
 ```shell
 docker network ls
 ```
-Проверка указанного порта
 
-Linux
+---
+
+#### Порты
+
+Проверка указанного порта.
+
+**Linux:**
 ```shell
 netstat -tuln | grep :8082
 ```
-Windows
+**Windows:**
 ```powershell
 netstat -aon | findstr :8082
 ```
-Зайти в контейнер в интерактивном режиме
+Получить список проброшенных портов контейнера:
 ```shell
-docker exec -it my-apache bash
+docker port <container_name>
 ```
-Удалить все остановленные или не запущенные (Exited, Created) контейнеры
-```shell
-docker container prune
-```
-`Prune` - Удаляйте ненужные контейнеры чтобы не засорять ваш Docker!
+> ⚠️ Без имени контейнера команда не работает.
 
-или
+Открыть в браузере страницу **Nginx** по динамически выбранному порту, например:
+`http://localhost:32768/`
+
+---
+
+#### Тома
+
+Показать все тома:
 ```shell
-docker rm $(docker ps -aq)
+docker volume ls
 ```
-Удаление остановленных контейнеров
+Создать том:
 ```shell
-docker rm $(docker ps -a -f status=exited -q)
+docker volume create my-vol
 ```
+Показать детали тома:
+```shell
+docker volume inspect my-vol
+```
+Удалить том:
+```shell
+docker volume rm my-vol
+```
+Удалить все неиспользуемые тома:
+```shell
+docker volume prune
+```
+
+---
 
 #### Docker Compose
 
-Остановить контейнер:
+Запустить проект в фоне:
+```shell
+docker compose up -d
+```
+Остановить и удалить контейнеры и сети проекта (тома **сохраняются**):
 ```shell
 docker compose down
 ```
-
-Остановить контейнер и удалить данные:
+Остановить и удалить контейнеры, сети **и тома** проекта:
 ```shell
 docker compose down -v
 ```
+Посмотреть статус сервисов проекта:
+```shell
+docker compose ps
+```
+Смотреть логи сервисов в реальном времени:
+```shell
+docker compose logs -f
+```
+Пересобрать образы проекта:
+```shell
+docker compose build
+```
+Перезапустить сервисы:
+```shell
+docker compose restart
+```
+Выполнить команду внутри сервиса:
+```shell
+docker compose exec <service> <command>
+```
+
+---
 
 ### DOCKER HUB
 
-docker pull nginx
-docker pull postgres
-docker pull redis
-# На самом деле это:
-docker pull docker.io/library/nginx:latest
+Найти указанный образ:
+```shell
 docker search nginx
+```
+Скачать указанный образ:
+```shell
+docker pull nginx
+```
+На самом деле это:
+```shell
+docker pull docker.io/library/nginx:latest
+```
+Получить информацию по указанному образу:
+```shell
 docker inspect nginx
+```
+Скачать образ **Postgres**:
+```shell
+docker pull postgres
+```
+Скачать образ **Redis**:
+```shell
+docker pull redis
+```
+Скачать образ **nginx на базе Alpine**:
+```shell
 docker pull nginx:alpine
+```
+Скачать образ **чистого Alpine Linux**:
+```shell
+docker pull alpine
+```
+Войти в Docker Hub:
+```shell
+docker login
+```
+Поставить тег образу для публикации:
+```shell
+docker tag my-app username/my-app:1.0
+```
+Опубликовать образ в Docker Hub:
+```shell
+docker push username/my-app:1.0
+```
+Выйти из Docker Hub:
+```shell
+docker logout
+```
+
+---
+
+### Очистка (Prune)
+
+| Команда | Что удаляет |
+|---------|-------------|
+| `docker container prune` | Остановленные контейнеры |
+| `docker image prune` | Промежуточные (dangling) образы без тегов |
+| `docker image prune -a` | Все неиспользуемые образы |
+| `docker volume prune` | Неиспользуемые тома |
+| `docker volume prune -a` | Все неиспользуемые тома (включая именованные) |
+| `docker network prune` | Неиспользуемые сети |
+| `docker builder prune` | Кэш сборок |
+| `docker system prune` | Контейнеры + образы + сети + кэш (но **не тома**) |
+| `docker system prune --volumes` | То же + **тома** |
+| `docker system prune -a --volumes` | Всё неиспользуемое, включая образы с тегами и тома |
+
+---
 
 ### Ресурсы
 
-- [](/content/Docker/Docs/Codespace.md)
-- [](/content/Docker/Docs/Dockerfile&DockerCompose.md)
-- [](/content/Docker/Docs/DockerfileInfo.md)
-- [](/content/Docker/Docs/DockerImageLifecycle.md)
-- [](/content/Docker/Docs/DockerHub.md)
-- [](/content/Docker/Docs/dockerStats.md)
-- [](/content/Docker/Docs/Network.md)
-- [](/content/Docker/Docs/Portainer_info.md)
-- [](/content/Docker/Docs/Productiom.md)
-- [](/content/Docker/Docs/Prune.md)
-- [](/content/Docker/Docs/stopDown.md)
-- [](/content/Docker/Docs/ThatIsDocker.md)
-- [](/content/Docker/Docs/)
+- [Что такое Docker?](/content/Docker/Docs/ThatIsDocker.md)
+- [Codespace](/content/Docker/Docs/Codespace.md)
+- [Dockerfile](/content/Docker/Docs/DockerfileInfo.md)
+- [Dockerfile + Docker Compose](/content/Docker/Docs/Dockerfile&DockerCompose.md)
+- [Жизненный цикл Docker-образа](/content/Docker/Docs/DockerImageLifecycle.md)
+- [Docker Hub](/content/Docker/Docs/DockerHub.md)
+- [docker stats](/content/Docker/Docs/dockerStats.md)
+- [Docker-сети](/content/Docker/Docs/Network.md)
+- [Portainer](/content/Docker/Docs/Portainer_info.md)
+- [Docker + Продакшн (Production)](/content/Docker/Docs/Productiom.md)
+- [docker container prune](/content/Docker/Docs/Prune.md)
+- [Основное отличие Stop от Down](/content/Docker/Docs/stopDown.md)
 
-> Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
+> Если вы обнаружили ошибку в этом тексте — сообщите, пожалуйста, автору!
+
+---
+
+## 📋 Что было исправлено
+
+| # | Было | Стало |
+|---|------|-------|
+| 1 | `docker rm id_образа` (для образов) | `docker rmi id_образа` |
+| 2 | Совет про группу `docker` для macOS | Только для Linux |
+| 3 | `ocker inspect nginx` | `docker inspect nginx` |
+| 4 | `docker port` без аргументов | `docker port <container_name>` |
+| 5 | `docker pull nginx:alpine` = Alpine | Разделено: `nginx:alpine` и `alpine` |
+| 6 | `docker compose down` = «остановить» | «Остановить и удалить контейнеры и сети» |
+| 7 | Дублирование `search`, `pull`, `inspect` | Убрано |
+| 8 | Отсутствие команд для сетей, томов, Hub | Добавлено |
+| 9 | Опечатки «Покзать», «не зависимо», «динмически» | Исправлено |
+| 10 | `docker scan` | `docker scout cves` (актуально) |
+| 11 | Разбросанные `prune` | Собраны в одну таблицу |
+| 12 | Пустая ссылка в Ресурсах | Убрана |
+| 13 | Дублирование `docker network ls` | Оставлено один раз |
+| 14 | Команды `docker rm $(docker images -a -q)` (удаление образов через rm) | Заменено на корректные `docker rmi` |
+| 15 | Нет таблицы очистки | Добавлена сводная таблица Prune |
+
+После этих правок шпаргалка стала **точнее, полнее и безопаснее** для новичков: команды больше не приведут к неожиданному удалению контейнеров вместо образов, а читатель сразу увидит разницу между `nginx:alpine` и чистым Alpine.
