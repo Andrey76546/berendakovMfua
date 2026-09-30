@@ -62,17 +62,17 @@ git help
 
 **Сменить редактор по умолчанию:**
 
+На редактор кода **VS Code** (элементарный)
+```shell
+git config --global core.editor "code --wait"
+```
 На **Micro** (проще для новичков):
 ```shell
 git config --global core.editor "micro"
 ```
-На **Nano** (проще для новичков):
+На **Nano** (чуть сложней для новичков):
 ```shell
 git config --global core.editor "nano"
-```
-На **VS Code**:
-```shell
-git config --global core.editor "code --wait"
 ```
 
 **Представиться системе Git (выполняется однократно, после установки Git или перед 1-м коммитом)**

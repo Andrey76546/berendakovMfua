@@ -18,6 +18,6 @@
     - [CI/CD на Go CLI с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/Go_bin.md)
     - [CI/CD Python+PyInstaller CLI с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/Python_PyInstaller_bin.md)
     - [CI/CD на C#/.NET CLI с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/Dotnet.md)
-    - [CI/CD с Go GUI с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/)
+    - [CI/CD с Go GUI с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/CD_Go_GUI.md)
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
