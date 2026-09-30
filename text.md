@@ -157,7 +157,7 @@ netstat -an
 route
 ```
 
-### Управление компьютером
+### Управление компьютером CLI
 
 Перезагрузка
 ```shell
@@ -197,23 +197,41 @@ ls
 
 ### Пасхалки
 
+Матрица
+```shell
 cmatrix
+```
+Выйти из матрицы по `Q`
 
+Поезд
+```shell
 sl
-
+```
+ещё поезд
+```shell
 sl -a
-
+```
+и ещё поезд
+```shell
 sl -l
-
+```
+и ещё
+```shell
 sl -F
-
+```
+Огонь
+```shell
 cacafire
-
+```
+Попугай
+```shell
 curl parrot.live
-
+```
+Бегущий человек
+```shell
 curl ascii.live/forrest
-
+```
+Поющиё человек
+```shell
 curl ascii.live/can-you-hear-me
-
-
-
+```
