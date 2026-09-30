@@ -1,6 +1,8 @@
-## Основы Bash CLI (Не удаляй, сделать его основным!)
+## Основы Bash CLI
 
 **Bash** - терминал, командная строка, консоль. Ещё **Bash**- это скриптовый ЯП
+
+**CLI** - Command Line Interface
 
 файл `bashcli.md`
 
@@ -99,15 +101,6 @@ cal
 ```shell
 date
 ```
-Получить содержимое текстового файла
-```shell
-cat имя_файла
-```
-Отредактировать текстовый файл
-```shell
-nano имя_файла
-```
-Сохранить `Ctrl+S`, выйти `Ctrl+X`
 
 ### Сеть
 
@@ -135,6 +128,7 @@ ip -c a
 ```shell
 ping 8.8.8.8
 ```
+Чтобы выйти из бесконечного пинга, выполните `Ctrl+C`
 ```shell
 ping ya.ru
 ```
@@ -194,6 +188,68 @@ pwd
 ```shell
 ls
 ```
+Получить структуру текущей директории
+```shell
+tree
+```
+Создать новый пустой файл
+```shell
+touch newFile.txt
+```
+Получить сведения о файле
+```shell
+file имя_файла
+```
+Получить содержимое текстового файла
+```shell
+cat имя_файла
+```
+Отредактировать текстовый файл
+```shell
+nano имя_файла
+```
+Сохранить `Ctrl+S`, выйти `Ctrl+X`
+
+Переименовать файл
+```shell
+mv old_name.txt new_name.txt
+```
+Создать пустой каталог
+```shell
+mkdir NewFolder
+```
+Переименовать указанный каталог
+```shell
+mv newFolder/ newDir
+```
+Скопировать указанный файл в указанную папку
+```shell
+cp other_name.txt newDir/
+```
+Удалить файл
+```shell
+rm other_name.txt
+```
+Переместить файл
+```shell
+mv more_file.txt newDir/
+```
+Зайти в указанную папку
+```shell
+cd newDir
+```
+Выйти из текущей папки
+```shell
+cd ..
+```
+Вернуться в предыдушую папку
+```shell
+cd -
+```
+Удалить указанную папку
+```shell
+rm -rf newDir
+```
 
 ### Пасхалки
 
@@ -234,4 +290,18 @@ curl ascii.live/forrest
 Поющиё человек
 ```shell
 curl ascii.live/can-you-hear-me
+```
+Аквариум
+```shell
+snap install asciiquarium && asciiquarium
+```
+Выйти из аквариума по '**Q**'
+
+Хакерский терминал
+```shell
+docker run --rm -it bcbcarl/hollywood
+```
+Мнямка
+```shell
+nyancat
 ```
