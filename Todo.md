@@ -111,11 +111,12 @@
 - Markdown +
 - Mermaid +
 - Настройки Git +
-- Командная строка PowerShell/GitBash/Bash ?
+- Основы Bash CLI +
+- Основы Bash-скриптинга
 - Основы Git
 - Ubuntu WSL
 - Docker
-- Docker - установили LLM Ollama ?
+- Docker - установили LLM Ollama
 - Самостоятельные работы:
     - Красивый README.md с Markdown
     - README.md с Markdown + Mermaid
@@ -123,7 +124,7 @@
     - Статический сайт на Github Pages
     - Командная работа на Github Pages
 
-Отличники: Сухинин (), Яковлев (), Лузянин (), Давыдов (), 
+Отличники: Сухинин (2), Яковлев (2), Лузянин (2), Давыдов (2)
 
 01.10 8482 Обеспечение качества
 
