@@ -103,6 +103,14 @@ cal
 ```shell
 date
 ```
+Получить таблицу ASCII
+```shell
+ascii -d
+```
+Получить таблицу ASCII с бинарными кодами
+```shell
+ascii -b
+```
 
 ### Сеть
 
@@ -206,7 +214,6 @@ file имя_файла
 ```shell
 stat имя_файла
 ```
-
 Получить содержимое текстового файла
 ```shell
 cat имя_файла
@@ -229,13 +236,17 @@ mkdir NewFolder
 ```shell
 mv newFolder/ newDir
 ```
-Скопировать указанный файл в указанную папку
+Скопировать файл в указанную папку
 ```shell
 cp other_name.txt newDir/
 ```
 Удалить файл
 ```shell
 rm other_name.txt
+```
+Создать новый пустой файл
+```shell
+touch newFile.txt
 ```
 Переместить файл
 ```shell
@@ -256,6 +267,64 @@ cd -
 Удалить указанную папку
 ```shell
 rm -rf newDir
+```
+
+### Работа с разными языками программирования (выполнять в Ubuntu WSL)
+
+Создать файл скрипта
+```shell
+nano main.py
+```
+Текст скрипта
+```python
+print('Hello!')
+```
+Запустить программу
+```shell
+python3 main.py
+```
+Создать файл программы на C++
+```shell
+nano main.cpp
+```
+Текст программы
+```shell
+#include <iostream>
+int main() {
+    std::cout << "Hello!" << std::endl;
+    return 0;
+}
+```
+Скомпилировать программу
+```shell
+g++ main.cpp -o main.bin
+```
+или
+```shell
+clang++ main.cpp -o main.bin
+```
+Запустить программу
+```shell
+./main.bin
+```
+Получить зависимости от библиотек указанной программы
+```shell
+ldd main.bin
+```
+Получить время выполения скрипта или программы
+```shell
+time python3 main.py
+```
+
+### Конвейерная обработка файлов и каталогов
+
+Создать сразу несколько пустых файлов
+```shell
+touch {1..3}.txt
+```
+Создать сразу несколько пустых папкок
+```shell
+mkdir folder{1..3}
 ```
 
 ### Пасхалки
