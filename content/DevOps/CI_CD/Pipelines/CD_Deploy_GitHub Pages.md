@@ -10,6 +10,8 @@
 
 **GitHub Deployments** — история развёртываний: что, когда и куда задеплоено.
 
+**CDN** (Content Delivery Network) — сеть серверов по всему миру, которые кэшируют статический контент и отдают его пользователю с **ближайшего** сервера. GitHub Pages использует CDN автоматически.
+
 **Цель** — научиться **деплоить** живой сайт на GitHub Pages, видеть историю деплоев в интерфейсе GitHub и открывать сайт по кликабельной ссылке.
 
 Что узнаете:
@@ -20,6 +22,7 @@
 - **`environment: github-pages`** — привязка к окружению
 - **`permissions: pages: write`** — разрешения для деплоя
 - **`base` в `vite.config.ts`** — специфика GitHub Pages
+- **CDN** — как GitHub раздаёт статику по всему миру
 - **Разницу между Releases и Deploy**
 
 Ключевое отличие от предыдущих проектов:
@@ -324,12 +327,20 @@ import App from './App'
 describe('App', () => {
   it('renders the header', () => {
     render(<App />)
-    expect(screen.getByText(/Hello Pages/i)).toBeInTheDocument()
+    // Ищем конкретно h1 с нужным текстом
+    expect(
+      screen.getByRole('heading', { level: 1, name: /Hello Pages/i })
+    ).toBeInTheDocument()
   })
 
   it('renders the about section', () => {
     render(<App />)
-    expect(screen.getByText(/GitHub Pages/i)).toBeInTheDocument()
+    // Ищем заголовок секции — он уникален
+    expect(
+      screen.getByRole('heading', { level: 2, name: /О проекте/i })
+    ).toBeInTheDocument()
+    // А упоминание GitHub Pages — просто проверяем, что есть хоть одно
+    expect(screen.getAllByText(/GitHub Pages/i).length).toBeGreaterThan(0)
   })
 
   it('renders the projects list', () => {
@@ -574,19 +585,17 @@ head -10 package-lock.json
 
 > ⚠️ **Первый запуск** скачает ~200 MB зависимостей — **1–2 минуты**. Последующие запуски быстрые благодаря кэшу в `~/.npm-docker-cache`.
 
+> ⚠️ В выводе `npm install` могут быть предупреждения `npm warn deprecated ...` и `N vulnerabilities`. Это **не ошибки** — не запускайте `npm audit fix --force`, это может сломать проект. В продакшн-сборку эти предупреждения не попадают.
+
 ### 3. Тесты в Docker
 
 **Git Bash / Linux / WSL / macOS:**
 
 ```shell
 cd ~/hello-pages
-docker run --rm \
-  -u "$(id -u):$(id -g)" \
-  -e HOME=/tmp \
-  -v "$(pwd)":/app \
-  -v ~/.npm-docker-cache:/tmp/.npm \
-  -w /app \
-  node:20-alpine \
+docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+  -v "$(pwd)":/app -v ~/.npm-docker-cache:/tmp/.npm \
+  -w /app node:20-alpine \
   sh -c "npm ci --cache /tmp/.npm && npm test -- --run"
 ```
 
@@ -683,9 +692,12 @@ docker run --rm -p 8081:80 \
 
 1. Откройте репозиторий → **Settings** → **Pages**
 2. В разделе **Build and deployment** → **Source** выберите **GitHub Actions**
-3. Нажмите **Save**
+3. **Кнопки Save нет** — настройка применяется автоматически
 
-> 💡 **Почему именно `GitHub Actions`?** Это позволяет использовать `actions/deploy-pages@v4` для деплоя вместо устаревшего подхода «ветка `gh-pages`». GitHub сам создаст Environment `github-pages` и настроит CDN (GitHub регистрирует ваш сайт в своей CDN-сети - часть инфраструктуры доставки - сеть серверов по всему миру) с HTTPS.
+> 💡 GitHub может не показать подтверждающее сообщение сразу — это нормально.
+> **Главное — при обновлении страницы Source должен остаться GitHub Actions.**
+
+> 💡 **Почему именно `GitHub Actions`?** Это позволяет использовать `actions/deploy-pages@v4` для деплоя вместо устаревшего подхода «ветка `gh-pages`». GitHub сам создаст Environment `github-pages` и настроит **CDN** — сеть серверов по всему миру, которая раздаёт статику с ближайшего к пользователю сервера.
 
 ### 7. Запушить проект
 
@@ -733,23 +745,55 @@ git push -u origin main
 
 ### 9. Проверка деплоя
 
-#### 9.1. Вкладка Environments
+> ⚠️ В новом UI GitHub ссылки на Environment и Deployments **не всегда видны** в правой колонке главной страницы. Это нормально — ниже указано, где их искать.
 
-Откройте в репозитории: **Code → Environments** (в правой колонке).
+#### 9.1. Environments
+
+**Прямая ссылка:**
+```
+https://github.com/<ВАШ-USERNAME>/hello-pages/settings/environments
+```
+
+Или через меню: **Settings → Environments** (в левом меню).
 
 Там будет **`github-pages`** с информацией:
 - 🌐 **View deployment** — кликабельная ссылка на **живой сайт**
 - 📅 История деплоев
 
-#### 9.2. Вкладка Deployments
+> 💡 **Почему Environment не виден в правой колонке?** Потому что он создан **автоматически** Actions, у вас **только один** environment, и у него **нет** protection rules. GitHub показывает в боковой панели только «пользовательские» окружения. Когда добавите protection rules или создадите второй environment — ссылка появится.
 
-Откройте: **Insights → Deployments**.
+#### 9.2. Deployments
+
+**Прямая ссылка:**
+```
+https://github.com/<ВАШ-USERNAME>/hello-pages/deployments
+```
 
 Там будет **вся история развёртываний**:
 - 🟢 `abc1234` — Deployed to github-pages
 - 🟢 `def5678` — Deployed to github-pages
 
-#### 9.3. Живой URL
+#### 9.3. Insights
+
+Вкладка **Insights** (в верхнем меню) показывает **статистику**: Pulse, Contributors, Traffic, Commits. **Deployments там нет** — это отдельная страница (см. 9.2).
+
+#### 9.4. Живой URL
+
+**Ссылка на сайт в новом UI GitHub НЕ появляется автоматически на главной странице репозитория.** Это изменение по сравнению со старым UI (когда Pages работал через ветку `gh-pages`).
+
+**Где найти URL:**
+
+1. **Settings → Pages** — основной способ
+2. **Settings → Environments → github-pages → View deployment**
+3. **Deployments** — история с URL
+
+**Рекомендуется добавить URL вручную в About:**
+
+1. Главная страница репозитория → блок **About** (справа) → ⚙️ (шестерёнка)
+2. Поставьте галочку **Use your GitHub Pages website**
+3. **Save changes**
+
+После этого ссылка на сайт появится в правой колонке главной страницы.
 
 Откройте в браузере:
 
@@ -759,7 +803,7 @@ https://<ВАШ-USERNAME>.github.io/hello-pages/
 
 **Ожидаемый результат:** откроется страница с заголовком **«🚀 Hello Pages»**, карточками «О проекте» и «Проекты серии», фиолетовым градиентом фона.
 
-> ⚠️ **Первый деплой может занять 5–10 минут** — GitHub нужно создать CDN, настроить HTTPS. Последующие деплои будут мгновенными.
+> ⚠️ **Первый деплой может занять 5–10 минут** — GitHub нужно зарегистрировать сайт в CDN, настроить HTTPS. Последующие деплои будут мгновенными.
 
 ### 10. Что появилось на GitHub
 
@@ -767,12 +811,12 @@ https://<ВАШ-USERNAME>.github.io/hello-pages/
 
 ```
 Репозиторий → Code
-├── About                  ← описание
+├── About                  ← ссылка на сайт (если добавили вручную)
 ├── Releases               ← нет релизов (это Pages, не Releases!)
 ├── Packages               ← нет пакетов
-├── Environments           ← появилось!
+├── Environments           ← Settings → Environments
 │   └── github-pages       ← живое окружение с URL
-├── Deployments            ← история деплоев
+├── Deployments            ← /deployments
 └── ...
 ```
 
@@ -785,12 +829,12 @@ https://<ВАШ-USERNAME>.github.io/hello-pages/
 
 ### 11. Обновление сайта
 
-Внесите изменения в код (например, в `src/components/About.tsx`), закоммитьте и запушьте в `main`:
+Внесите изменения в код (например, в `src/components/About.tsx` добавьте новый параграф), закоммитьте и запушьте в `main`:
 
 ```shell
 cd ~/hello-pages
 
-# Откройте About.tsx в VS Code и измените текст
+# Откройте src/components/About.tsx в VS Code и измените текст
 # ...
 
 # Проверьте локально
@@ -866,6 +910,26 @@ git push origin main
 >
 > В `tsconfig.app.json` и `tsconfig.node.json` должно быть `"composite": true`. В этом руководстве они уже добавлены.
 
+> **`Found multiple elements with the text`** (в тестах)
+>
+> `getByText` нашёл **несколько** элементов. Используйте **`getByRole`** с уточнением (`heading`, `level`) или **`getAllByText(...).length`**.
+
+> **`npm warn deprecated` и `N vulnerabilities`**
+>
+> Это **не ошибки**, а предупреждения о транзитивных зависимостях. **Игнорируйте их.** НЕ запускайте `npm audit fix --force` — он может сломать проект.
+
+> **Ссылка на сайт не появляется на главной странице**
+>
+> В новом UI GitHub ссылка **не отображается автоматически** при деплое через Actions. Это не ошибка.
+>
+> **Решение:** добавьте URL вручную через **About → ⚙️ → Use your GitHub Pages website**.
+>
+> **Альтернативы:** Settings → Pages, Settings → Environments → `github-pages`, Deployments.
+
+> **Environment не виден в правой колонке**
+>
+> Это нормально — он создан автоматически, без protection rules. Откройте **Settings → Environments** — там `github-pages` точно есть.
+
 ### 13. Краткая шпаргалка
 
 ```shell
@@ -893,6 +957,7 @@ git push origin main
 - **React + TypeScript** — типизированный UI
 - **Vitest** — тесты, аналогичные Jest, но для Vite
 - **GitHub Pages** — бесплатный хостинг статики с HTTPS
+- **CDN** — как GitHub раздаёт статику по всему миру
 - **`base` path** — специфика Pages для Vite
 - **`package-lock.json`** — обязателен для `npm ci` в CI
 - **`actions/deploy-pages`** — официальный деплой
@@ -922,5 +987,24 @@ git push origin main
 | **Время до продакшена** | Минуты | **1–2 минуты** |
 
 > **Главный урок:** Deploy ≠ Releases. **Release** — это упакованный артефакт для скачивания. **Deploy** — это **работающее приложение по URL**, доступное всем. GitHub Pages — самый простой способ показать результат деплоя в браузере.
+
+> Если вы обнаружили ошибку в этом тексте — сообщите пожалуйста автору!
+
+---
+
+## 📋 Что было исправлено
+
+| # | Что | Где |
+|---|-----|-----|
+| 1 | Дублирующийся заголовок `9.3` → `9.4` | Раздел 9 |
+| 2 | Уточнено, что Environments в **Settings**, а не в правой колонке | 9.1 |
+| 3 | Deployments — отдельная страница, не в Insights | 9.2 |
+| 4 | Insights — это статистика, а не Deployments | 9.3 |
+| 5 | Инструкция про About → Website переписана корректно | 9.4 |
+| 6 | CDN объяснён один раз (в введении), убрано дублирование | Введение, шаг 6 |
+| 7 | Добавлено объяснение, почему Environment не виден в колонке | 9.1, troubleshooting |
+| 8 | Добавлено про npm warnings | Шаг 2, troubleshooting |
+| 9 | Добавлено про `Found multiple elements` | Troubleshooting |
+| 10 | Добавлен раздел «Что было исправлено» | Конец |
 
 > Если вы обнаружили ошибку в этом тексте — сообщите пожалуйста автору!
