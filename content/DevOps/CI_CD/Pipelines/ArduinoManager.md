@@ -2,12 +2,11 @@
 
 Задачи:
 
-1. [Клонировать себе репозиторий](https://gitflic.ru/project/crimsonsamurai/arduino-manager?branch=gui)чтобы взять из него исходные файлы приложения на **Go**
-2. Создать новый репозиторий на **GitHub** с названием **"Arduino Manager GUI"** и поместить в него исходные файлы (`main.go`, `go.sum` и `go.mod`) приложения из клонированного выше репозитория
-3. При помощи нейросети создать с этими исходными файлами проект **CI/CD** для приложения **Arduino Manager GUI (Go+Fyne)** с публикацией бинарников в **GitHub Releases**
-4. После успешного **Workflow** оформить поэтапное **README.md** с демонстрацией скриншотов
+1. При помощи нейросети создать с этими исходными файлами проект **CI/CD** для приложения **Arduino Manager GUI (Go+Fyne)** с публикацией бинарников в **GitHub Releases**
+2. После успешного **Workflow** оформить поэтапное **README.md** с демонстрацией скриншотов
+3. После успешных **Actions** создать `README.md` с описанием всех этапов разработки этого проекта со скриншотами
 
-Файл `main.go`
+Файл `main.go`:
 ```go
 package main
 
@@ -1829,7 +1828,7 @@ func main() {
 }
 ```
 
-Файл `go.sum`
+Файл `go.sum`:
 ```go
 fyne.io/fyne/v2 v2.8.0 h1:KNUdIk1eKsXSPy/wU6MdiR1hppAPvyzbjPbtJ8h6EUQ=
 fyne.io/fyne/v2 v2.8.0/go.mod h1:tLJK7CVtUBOnMiSDR+J88t/quiGuEhwGs09tIVM1RXg=
