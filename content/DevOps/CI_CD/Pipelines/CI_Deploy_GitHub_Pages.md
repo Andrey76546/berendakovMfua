@@ -751,7 +751,7 @@ git push -u origin main
 
 > ⚠️ В новом UI GitHub ссылки на Environment и Deployments **не всегда видны** в правой колонке главной страницы. Ниже указано, где их искать.
 
-#### 9.1. Environments
+#### 9.1. Environments (окружения)
 
 **Прямая ссылка:**
 ```
