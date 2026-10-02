@@ -1,6 +1,5 @@
 ## Примеры CI/CD в GitHub Actions
 
-
 - CI
     - [Первый Pipeline](/content/DevOps/CI_CD/Pipelines/hello.md)
     - [Пайплайн для Python](/content/DevOps/CI_CD/Pipelines/Python.md)
@@ -22,7 +21,7 @@
     - [Hex Loader: CI/CD с Go GUI с публикацией бинарников в GitHub Releases](https://gitflic.ru/project/rurewa/mfua/blob?file=content/DevOps/CI_CD/Pipelines/HexLoader.md&branch=master&mode=markdown)
     - [CI/CD с приложением на Go (Fyne) - Arduino Manager GUI, с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/ArduinoManager.md)
 
--  Deploy
-    - [CI/CD + Deploy + GitHub Pages](/content/DevOps/CI_CD/Pipelines/CI_Deploy_GitHub_Pages.md)
+-  CI/CD (Deploy)
+    - [CI/CD на GitHub Pages](/content/DevOps/CI_CD/Pipelines/CI_Deploy_GitHub_Pages.md)
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
