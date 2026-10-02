@@ -1,4 +1,4 @@
-## CI/CD + Deploy на GitHub Pages
+## CI/CD на GitHub Pages
 
 **Деплой React SPA на живой URL через GitHub Pages, Environments и Deployments**
 
@@ -10,34 +10,33 @@
 
 **GitHub Deployments** — история развёртываний: что, когда и куда задеплоено.
 
-**CDN** (Content Delivery Network) — сеть серверов по всему миру, которые кэшируют статический контент и отдают его пользователю с **ближайшего** сервера. GitHub Pages использует CDN автоматически.
+**CDN** (Content Delivery Network) — сеть серверов по всему миру, которые кэшируют статический контент и отдают его с ближайшего к пользователю сервера. GitHub Pages использует CDN автоматически.
 
-**Цель** — научиться **деплоить** живой сайт на GitHub Pages, видеть историю деплоев в интерфейсе GitHub и открывать сайт по кликабельной ссылке.
+**Цель** — научиться **деплоить** живой сайт на GitHub Pages через **настоящий CI/CD**, видеть историю деплоев в интерфейсе GitHub и открывать сайт по кликабельной ссылке.
 
 Что узнаете:
 - **Vite** — современный сборщик для фронтенда
 - **React + TypeScript** — типизированный UI
 - **Vitest** — тесты для Vite-проектов
 - **`actions/deploy-pages`** — официальный action для деплоя
-- **`environment: github-pages`** — привязка к окружению
+- **`environment: github-pages`** — привязка job к окружению
 - **`permissions: pages: write`** — разрешения для деплоя
+- **`needs: ci`** — гейтинг деплоя на CI (настоящий CD)
+- **`actions/upload-artifact` / `download-artifact`** — передача сборки между job'ами
 - **`base` в `vite.config.ts`** — специфика GitHub Pages
 - **CDN** — как GitHub раздаёт статику по всему миру
-- **Разницу между Releases и Deploy**
-
-Ключевое отличие от предыдущих проектов:
-- **Go CLI/GUI** — публикуется **артефакт** в Releases → пользователь **скачивает**
-- **Hello Pages** — деплоится **живой сайт** на Pages → пользователь **открывает в браузере**
+- **Разницу между Continuous Delivery и Continuous Deployment**
 
 > 💡 **Главный урок:** Deploy ≠ Releases. Releases — это **файлы для скачивания**. Deploy — это **работающее приложение по URL**.
+
+> 💡 **Настоящий CD** — это когда Deploy **не запускается**, пока CI **не прошёл** успешно. В этой лабораторной мы делаем именно так — через `needs: ci`.
 
 ### 1. Создайте структуру проекта
 
 ```text
 hello-pages/
 ├── .github/workflows/
-│   ├── ci.yml
-│   └── deploy.yml
+│   └── ci-cd.yml              ← ОДИН файл: CI + Deploy
 ├── public/
 │   └── favicon.svg
 ├── src/
@@ -59,6 +58,8 @@ hello-pages/
 ├── tsconfig.node.json
 └── vite.config.ts
 ```
+
+> 💡 **Почему один файл, а не два?** Потому что GitHub Actions **не поддерживает** `needs` между разными workflow-файлами. Чтобы Deploy **ждал** CI, оба job'а должны быть в **одном** workflow.
 
 Для перехода в корень текущего пользователя:
 
@@ -433,16 +434,28 @@ code {
 }
 EOF
 
-cat > .github/workflows/ci.yml << 'EOF'
-name: CI
+cat > .github/workflows/ci-cd.yml << 'EOF'
+name: CI/CD
 
 on:
   push:
     branches: [ main ]
   pull_request:
 
+# Права для деплоя на Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Защита от параллельных деплоев
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build:
+  # ===== Job 1: CI — проверки и сборка =====
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -468,27 +481,19 @@ jobs:
 
       - name: Build
         run: npm run build
-EOF
 
-cat > .github/workflows/deploy.yml << 'EOF'
-name: Deploy to GitHub Pages
+      # Сохраняем dist как артефакт для job'а deploy
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-jobs:
+  # ===== Job 2: Deploy — только после успешного CI =====
   deploy:
+    needs: ci                                  # ← ГЛАВНОЕ: ждём CI
+    if: github.ref == 'refs/heads/main'        # ← только на push в main
     runs-on: ubuntu-latest
 
     environment:
@@ -496,24 +501,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # Скачиваем dist, собранный в CI — не пересобираем!
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
         with:
-          node-version: '20'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
+          name: dist
+          path: dist
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload artifact to Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
@@ -585,7 +583,7 @@ head -10 package-lock.json
 
 > ⚠️ **Первый запуск** скачает ~200 MB зависимостей — **1–2 минуты**. Последующие запуски быстрые благодаря кэшу в `~/.npm-docker-cache`.
 
-> ⚠️ В выводе `npm install` могут быть предупреждения `npm warn deprecated ...` и `N vulnerabilities`. Это **не ошибки** — не запускайте `npm audit fix --force`, это может сломать проект. В продакшн-сборку эти предупреждения не попадают.
+> ⚠️ В выводе `npm install` могут быть предупреждения `npm warn deprecated ...` и `N vulnerabilities`. Это **не ошибки** — не запускайте `npm audit fix --force`. В продакшн-сборку эти предупреждения не попадают.
 
 ### 3. Тесты в Docker
 
@@ -674,7 +672,7 @@ docker run --rm -p 8081:80 \
   nginx:alpine
 ```
 
-Откройте `http://localhost:8081/hello-pages/` — должен открыться сайт. ⚠️ **Именно с префиксом `/hello-pages/`**, а не просто `http://localhost:8081/`.
+Откройте `http://localhost:8081/hello-pages/` — должен открыться сайт.
 
 > ⚠️ **После проверки остановите контейнер** — `Ctrl+C` в терминале.
 
@@ -682,22 +680,21 @@ docker run --rm -p 8081:80 \
 
 Создайте пустой репозиторий **`hello-pages`** на **GitHub**.
 
-> ⚠️ **Имя репозитория должно точно совпадать с `base` в `vite.config.ts`** (в нашем случае `hello-pages`). Иначе сайт не заработает.
+> ⚠️ **Имя репозитория должно точно совпадать с `base` в `vite.config.ts`**. Иначе сайт не заработает.
 >
 > ⚠️ **Не добавляйте** `README.md`, `.gitignore` и лицензию — иначе `push` будет отклонён.
 
 ### 6. Включение GitHub Pages в настройках
 
-> ⚠️ **Выполните этот шаг ДО первого `push` в `main`** — иначе workflow `deploy.yml` упадёт с ошибкой `Pages site not found`.
+> ⚠️ **Выполните этот шаг ДО первого `push` в `main`** — иначе workflow упадёт с ошибкой `Pages site not found`.
 
 1. Откройте репозиторий → **Settings** → **Pages**
 2. В разделе **Build and deployment** → **Source** выберите **GitHub Actions**
 3. **Кнопки Save нет** — настройка применяется автоматически
 
-> 💡 GitHub может не показать подтверждающее сообщение сразу — это нормально.
-> **Главное — при обновлении страницы Source должен остаться GitHub Actions.**
+> 💡 GitHub может не показать подтверждающее сообщение сразу — это нормально. **Главное — при обновлении страницы Source должен остаться GitHub Actions.**
 
-> 💡 **Почему именно `GitHub Actions`?** Это позволяет использовать `actions/deploy-pages@v4` для деплоя вместо устаревшего подхода «ветка `gh-pages`». GitHub сам создаст Environment `github-pages` и настроит **CDN** — сеть серверов по всему миру, которая раздаёт статику с ближайшего к пользователю сервера.
+> 💡 **Почему именно `GitHub Actions`?** Это позволяет использовать `actions/deploy-pages@v4` вместо устаревшего подхода «ветка `gh-pages`». GitHub сам создаст Environment `github-pages` и настроит **CDN**.
 
 ### 7. Запушить проект
 
@@ -733,19 +730,26 @@ git push -u origin main
 
 > ⚠️ **Убедитесь, что `package-lock.json` попал в коммит.** Проверьте: `git ls-files | grep package-lock`. Если файла нет — вернитесь к шагу 2.
 
-### 8. Первый запуск CI и Deploy
+### 8. Первый запуск CI/CD
 
 После `push` в `main` откройте вкладку **Actions** в **GitHub**.
 
-Что произойдёт:
-- **Workflow `CI`** запустится параллельно — линт, типы, тесты, сборка (~2–3 минуты)
-- **Workflow `Deploy to GitHub Pages`** запустится — сборка и деплой (~2–3 минуты)
+**Что произойдёт:**
+- **Job `ci`** запустится: линт, типы, тесты, сборка, загрузка артефакта (~2–3 минуты)
+- **Job `deploy`** будет **ждать** — `needs: ci`
+- Когда `ci` завершится **✅ зелёным** — `deploy` запустится: скачает артефакт, задеплоит на Pages (~1 минута)
+- Если `ci` **упадёт ❌** — `deploy` **не запустится** (это и есть настоящий CD)
 
-Вы увидите, как оба workflow запустились, а через несколько минут загорятся **зелёные галочки** — значит, всё прошло успешно.
+> 💡 **Визуально в Actions** вы увидите:
+> ```
+> CI/CD
+> ├── ✅ ci
+> └── ✅ deploy (needs: ci)   ← запустился только после ci
+> ```
 
 ### 9. Проверка деплоя
 
-> ⚠️ В новом UI GitHub ссылки на Environment и Deployments **не всегда видны** в правой колонке главной страницы. Это нормально — ниже указано, где их искать.
+> ⚠️ В новом UI GitHub ссылки на Environment и Deployments **не всегда видны** в правой колонке главной страницы. Ниже указано, где их искать.
 
 #### 9.1. Environments
 
@@ -760,7 +764,7 @@ https://github.com/<ВАШ-USERNAME>/hello-pages/settings/environments
 - 🌐 **View deployment** — кликабельная ссылка на **живой сайт**
 - 📅 История деплоев
 
-> 💡 **Почему Environment не виден в правой колонке?** Потому что он создан **автоматически** Actions, у вас **только один** environment, и у него **нет** protection rules. GitHub показывает в боковой панели только «пользовательские» окружения. Когда добавите protection rules или создадите второй environment — ссылка появится.
+> 💡 **Почему Environment не виден в правой колонке?** Потому что он создан **автоматически** Actions, у вас **только один** environment, и у него **нет** protection rules.
 
 #### 9.2. Deployments
 
@@ -769,17 +773,11 @@ https://github.com/<ВАШ-USERNAME>/hello-pages/settings/environments
 https://github.com/<ВАШ-USERNAME>/hello-pages/deployments
 ```
 
-Там будет **вся история развёртываний**:
-- 🟢 `abc1234` — Deployed to github-pages
-- 🟢 `def5678` — Deployed to github-pages
+Там будет **вся история развёртываний**.
 
-#### 9.3. Insights
+#### 9.3. Живой URL
 
-Вкладка **Insights** (в верхнем меню) показывает **статистику**: Pulse, Contributors, Traffic, Commits. **Deployments там нет** — это отдельная страница (см. 9.2).
-
-#### 9.4. Живой URL
-
-**Ссылка на сайт в новом UI GitHub НЕ появляется автоматически на главной странице репозитория.** Это изменение по сравнению со старым UI (когда Pages работал через ветку `gh-pages`).
+**Ссылка на сайт в новом UI GitHub НЕ появляется автоматически на главной странице репозитория.** Это изменение по сравнению со старым UI.
 
 **Где найти URL:**
 
@@ -793,8 +791,6 @@ https://github.com/<ВАШ-USERNAME>/hello-pages/deployments
 2. Поставьте галочку **Use your GitHub Pages website**
 3. **Save changes**
 
-После этого ссылка на сайт появится в правой колонке главной страницы.
-
 Откройте в браузере:
 
 ```
@@ -803,11 +799,9 @@ https://<ВАШ-USERNAME>.github.io/hello-pages/
 
 **Ожидаемый результат:** откроется страница с заголовком **«🚀 Hello Pages»**, карточками «О проекте» и «Проекты серии», фиолетовым градиентом фона.
 
-> ⚠️ **Первый деплой может занять 5–10 минут** — GitHub нужно зарегистрировать сайт в CDN, настроить HTTPS. Последующие деплои будут мгновенными.
+> ⚠️ **Первый деплой может занять 5–10 минут** — GitHub нужно зарегистрировать сайт в CDN. Последующие деплои мгновенные.
 
 ### 10. Что появилось на GitHub
-
-Теперь ваш репозиторий выглядит так:
 
 ```
 Репозиторий → Code
@@ -820,16 +814,9 @@ https://<ВАШ-USERNAME>.github.io/hello-pages/
 └── ...
 ```
 
-**Ключевое отличие от предыдущих проектов:**
-
-| Проект | Что публикуется | Где видно |
-|--------|----------------|-----------|
-| Go CLI/GUI | Артефакт | **Releases** (файлы) |
-| **Hello Pages** | Живой сайт | **Environments** (URL) + **Deployments** (история) |
-
 ### 11. Обновление сайта
 
-Внесите изменения в код (например, в `src/components/About.tsx` добавьте новый параграф), закоммитьте и запушьте в `main`:
+Внесите изменения в код (например, в `src/components/About.tsx`), закоммитьте и запушьте в `main`:
 
 ```shell
 cd ~/hello-pages
@@ -850,23 +837,34 @@ git push origin main
 ```
 
 **Что произойдёт:**
-- ✅ CI запустится (линт, типы, тесты)
-- ✅ Deploy запустится **сразу после** — на Pages уедет новая версия
-- ✅ Обновится **Deployments** — новая запись с новым коммитом
+- ✅ Job `ci` пройдёт все проверки
+- ✅ Job `deploy` запустится **только после** успешного CI
 - ✅ Через 1–2 минуты изменения будут **на живом сайте**
 
-> 💡 **Никаких тегов для деплоя!** В отличие от Releases (где нужен тег), Pages деплоится **на каждый push в main**. Это типично для веб-приложений.
+> 💡 **Никаких тегов для деплоя!** В отличие от Releases (где нужен тег), Pages деплоится **на каждый push в main**.
 
-### 12. Если что-то не работает
+### 12. Continuous Delivery vs Continuous Deployment
+
+> 💡 **Что означает «настоящий CD» в нашем случае?**
+>
+> | Тип | Что делает | Наш проект |
+> |-----|------------|:---:|
+> | **Continuous Integration (CI)** | Автоматически проверяет код | ✅ `job: ci` |
+> | **Continuous Delivery (CDel)** | Готовит релиз, но деплой — вручную | ❌ |
+> | **Continuous Deployment (CDep)** | Деплоит автоматически после CI | ✅ `job: deploy` |
+>
+> **Мы реализовали Continuous Deployment:**
+> - Push в `main` → CI → **если CI ✅** → автоматический деплой
+> - Никакого ручного approval
+> - `needs: ci` — критично важная часть: **deploy не запустится, если CI упал**
+>
+> **Если бы мы хотели Continuous Delivery** — добавили бы `environment: production` с **required reviewers**. Тогда деплой ждал бы ручного подтверждения.
+
+### 13. Если что-то не работает
 
 > **Белый экран на живом сайте**
 >
-> Откройте DevTools (F12) → Console. Если видите ошибки `404` для `/assets/...` — значит, **`base` в `vite.config.ts` неверный**.
->
-> Проверьте: имя репозитория должно **точно совпадать** с `base`:
-> ```typescript
-> base: '/hello-pages/',   // ← имя репозитория
-> ```
+> Откройте DevTools (F12) → Console. Ошибки `404` для `/assets/...` = **`base` в `vite.config.ts` неверный**. Имя репозитория должно **точно совпадать** с `base`.
 
 > **`Pages site not found`**
 >
@@ -874,7 +872,7 @@ git push origin main
 
 > **`Resource not accessible by integration`**
 >
-> В `deploy.yml` не хватает прав:
+> В `ci-cd.yml` не хватает прав:
 > ```yaml
 > permissions:
 >   contents: read
@@ -888,49 +886,39 @@ git push origin main
 
 > **`Concurrency limit exceeded`**
 >
-> Два деплоя одновременно. `concurrency: pages` должен предотвращать, но иногда срабатывает. Дождитесь завершения первого.
+> Два деплоя одновременно. `concurrency: pages` должен предотвращать — дождитесь завершения первого.
 
 > **`Environment 'github-pages' not found`**
 >
-> `github-pages` — **встроенное** имя для деплоя на Pages. Убедитесь, что в `deploy.yml` указано **именно** `github-pages`.
+> `github-pages` — **встроенное** имя. Убедитесь, что в `ci-cd.yml` указано именно `github-pages`.
+
+> **Job `deploy` не запускается**
+>
+> Это **правильное поведение**! Job `deploy` имеет `needs: ci` — он ждёт, пока CI завершится. Если CI **упал** — `deploy` **не запустится** (это и есть настоящий CD).
+>
+> **Проверьте:** в Actions job `deploy` должен быть **серым** (skipped/waiting), пока `ci` выполняется.
 
 > **Site 404 после первого деплоя**
 >
-> GitHub нужно **5–10 минут** на создание CDN. Подождите и обновите.
-
-> **Стили не применяются**
->
-> Проверьте `dist/index.html` **после локальной сборки**:
-> ```shell
-> grep "assets" dist/index.html
-> ```
-> Путь должен быть `/hello-pages/assets/...`, а не `/assets/...`.
-
-> **`TS6306: Referenced project must have setting "composite": true`**
->
-> В `tsconfig.app.json` и `tsconfig.node.json` должно быть `"composite": true`. В этом руководстве они уже добавлены.
+> GitHub нужно **5–10 минут** на создание CDN. Подождите.
 
 > **`Found multiple elements with the text`** (в тестах)
 >
-> `getByText` нашёл **несколько** элементов. Используйте **`getByRole`** с уточнением (`heading`, `level`) или **`getAllByText(...).length`**.
+> `getByText` нашёл **несколько** элементов. Используйте `getByRole` с уточнением или `getAllByText(...).length`.
 
 > **`npm warn deprecated` и `N vulnerabilities`**
 >
-> Это **не ошибки**, а предупреждения о транзитивных зависимостях. **Игнорируйте их.** НЕ запускайте `npm audit fix --force` — он может сломать проект.
+> Это **не ошибки**, а предупреждения о транзитивных зависимостях. **Игнорируйте.** НЕ запускайте `npm audit fix --force`.
 
 > **Ссылка на сайт не появляется на главной странице**
 >
-> В новом UI GitHub ссылка **не отображается автоматически** при деплое через Actions. Это не ошибка.
->
-> **Решение:** добавьте URL вручную через **About → ⚙️ → Use your GitHub Pages website**.
->
-> **Альтернативы:** Settings → Pages, Settings → Environments → `github-pages`, Deployments.
+> В новом UI GitHub ссылка **не отображается автоматически**. **Решение:** добавьте вручную через **About → ⚙️ → Use your GitHub Pages website**.
 
 > **Environment не виден в правой колонке**
 >
-> Это нормально — он создан автоматически, без protection rules. Откройте **Settings → Environments** — там `github-pages` точно есть.
+> Это нормально — он создан автоматически без protection rules. Откройте **Settings → Environments**.
 
-### 13. Краткая шпаргалка
+### 14. Краткая шпаргалка
 
 ```shell
 # 1. Изменить код (откройте в VS Code)
@@ -960,17 +948,16 @@ git push origin main
 - **CDN** — как GitHub раздаёт статику по всему миру
 - **`base` path** — специфика Pages для Vite
 - **`package-lock.json`** — обязателен для `npm ci` в CI
+- **`needs: ci`** — гейтинг деплоя на CI (**настоящий CD**)
+- **`actions/upload-artifact` / `download-artifact`** — передача сборки между job'ами
 - **`actions/deploy-pages`** — официальный деплой
-- **`actions/configure-pages`** — настройка Pages для artifact
-- **`actions/upload-pages-artifact`** — передача сборки в деплой
 - **`environment: github-pages`** — привязка job к окружению
 - **`permissions: pages: write`** — права для деплоя
 - **`concurrency: pages`** — защита от параллельных деплоев
 - **Environments** — логические окружения в GitHub
 - **Deployments** — история развёртываний
-- **Разницу между Releases и Deploy**:
-  - **Releases** — артефакты для скачивания (Go CLI/GUI)
-  - **Deploy** — работающее приложение по URL (Hello Pages)
+- **Continuous Deployment vs Continuous Delivery** — разница на практике
+- **Разницу между Releases и Deploy**
 
 ### Ключевые отличия от предыдущих проектов
 
@@ -980,31 +967,14 @@ git push origin main
 | **Куда** | GitHub Releases | GitHub Pages |
 | **Как получить** | Скачать файл | Открыть URL |
 | **Триггер** | Тег `v*` | Push в `main` |
+| **Архитектура CI/CD** | 2 workflow (CI + Release) | **1 workflow с `needs: ci`** |
+| **Гейтинг** | Release не зависит от CI | **Deploy ждёт CI** |
 | **Environments** | Опционально | **Обязательно** (`github-pages`) |
 | **Deployments** | Опционально | **Автоматически** |
 | **URL** | Нет | **Есть** (живой) |
 | **HTTPS** | — | **Автоматически** |
-| **Время до продакшена** | Минуты | **1–2 минуты** |
+| **Тип CD** | Continuous Delivery (по тегу) | **Continuous Deployment** |
 
-> **Главный урок:** Deploy ≠ Releases. **Release** — это упакованный артефакт для скачивания. **Deploy** — это **работающее приложение по URL**, доступное всем. GitHub Pages — самый простой способ показать результат деплоя в браузере.
-
-> Если вы обнаружили ошибку в этом тексте — сообщите пожалуйста автору!
-
----
-
-## 📋 Что было исправлено
-
-| # | Что | Где |
-|---|-----|-----|
-| 1 | Дублирующийся заголовок `9.3` → `9.4` | Раздел 9 |
-| 2 | Уточнено, что Environments в **Settings**, а не в правой колонке | 9.1 |
-| 3 | Deployments — отдельная страница, не в Insights | 9.2 |
-| 4 | Insights — это статистика, а не Deployments | 9.3 |
-| 5 | Инструкция про About → Website переписана корректно | 9.4 |
-| 6 | CDN объяснён один раз (в введении), убрано дублирование | Введение, шаг 6 |
-| 7 | Добавлено объяснение, почему Environment не виден в колонке | 9.1, troubleshooting |
-| 8 | Добавлено про npm warnings | Шаг 2, troubleshooting |
-| 9 | Добавлено про `Found multiple elements` | Troubleshooting |
-| 10 | Добавлен раздел «Что было исправлено» | Конец |
+> **Главный урок:** Deploy ≠ Releases. **Release** — это упакованный артефакт для скачивания. **Deploy** — это **работающее приложение по URL**. А **настоящий CD** — это когда деплой **не запускается**, пока CI не прошёл успешно. Именно это мы сделали через `needs: ci`.
 
 > Если вы обнаружили ошибку в этом тексте — сообщите пожалуйста автору!
