@@ -441,3 +441,9 @@ docker run --rm -it bcbcarl/hollywood
 ```shell
 nyancat
 ```
+
+***
+
+### Ресурсы
+
+- [Linux Cheat Sheet — шпаргалка по командам Linux](https://github.com/justxor/Linux-/)
