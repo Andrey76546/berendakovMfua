@@ -574,27 +574,21 @@ https://<ВАШ-USERNAME>.github.io/hello-static/
 ```shell
 cd ~/hello-static
 
-# Откройте public/style.css в VS Code и измените цвет
-# ...
+# 1. Откройте public/style.css в VS Code и измените цвет
 
-# Валидация
-cd ~/hello-static
+# 2. Валидация
 docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$(pwd)":/app -v ~/.npm-docker-cache:/tmp/.npm \
   -w /app node:20-alpine \
   sh -c "npm ci --cache /tmp/.npm && npm run lint"
 
-# Проверьте локально
-```shell
-cd ~/hello-static
+# 3. Локальный просмотр (опционально)
 docker run --rm -p 8081:80 \
   -v "$(pwd)/public":/usr/share/nginx/html:ro \
   nginx:alpine
-```
+# Откройте http://localhost:8081/ и остановите через Ctrl+C
 
-Откройте: **`http://localhost:8081/`**
-
-# Закоммитьте и запушьте
+# 4. Коммит и push
 git add .
 git commit -m "style: update card shadow"
 git push origin main
@@ -652,19 +646,38 @@ git push origin main
 >
 > Проверьте пути в `public/index.html` — они должны быть **относительными**:
 > ```html
-> <link rel="stylesheet" href="./style.css" />
+> <link rel="stylesheet" href="./style.css">
 > <script src="./script.js"></script>
 > ```
 > Если там `/style.css` (абсолютный путь) — стили сломаются.
 
-> **`html-validate` ругается на `<br>` без закрытия**
+> **`html-validate` ругается на `doctype-style` и `void-style`**
 >
-> `html-validate` требует **строгий HTML5**. Например, `<br>` должен быть `<br />`, `<img>` — `<img />`. Либо отключите правило в `.htmlvalidate.json`:
+> `html-validate:recommended` требует **классический HTML5-стиль**:
+> - `<!DOCTYPE html>` — **заглавные буквы**
+> - `<meta>`, `<link>`, `<img>`, `<br>` — **без `/` в конце**
+>
+> **Правильно:**
+> ```html
+> <!DOCTYPE html>
+> <meta charset="UTF-8">
+> <link rel="stylesheet" href="./style.css">
+> ```
+>
+> **Неправильно:**
+> ```html
+> <!doctype html>
+> <meta charset="UTF-8" />
+> <link rel="stylesheet" href="./style.css" />
+> ```
+>
+> **Альтернатива** — отключить правила в `.htmlvalidate.json`:
 > ```json
 > {
 >   "extends": ["html-validate:recommended"],
 >   "rules": {
->     "void-style": "off"
+>     "void-style": "off",
+>     "doctype-style": "off"
 >   }
 > }
 > ```
