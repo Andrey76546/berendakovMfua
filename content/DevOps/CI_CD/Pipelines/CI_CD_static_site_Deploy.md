@@ -577,11 +577,22 @@ cd ~/hello-static
 # Откройте public/style.css в VS Code и измените цвет
 # ...
 
-# Проверьте локально
+# Валидация
+cd ~/hello-static
 docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$(pwd)":/app -v ~/.npm-docker-cache:/tmp/.npm \
   -w /app node:20-alpine \
   sh -c "npm ci --cache /tmp/.npm && npm run lint"
+
+# Проверьте локально
+```shell
+cd ~/hello-static
+docker run --rm -p 8081:80 \
+  -v "$(pwd)/public":/usr/share/nginx/html:ro \
+  nginx:alpine
+```
+
+Откройте: **`http://localhost:8081/`**
 
 # Закоммитьте и запушьте
 git add .
