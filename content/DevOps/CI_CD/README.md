@@ -22,6 +22,7 @@
     - [CI/CD с приложением на Go (Fyne) - Arduino Manager GUI, с публикацией бинарников в GitHub Releases](/content/DevOps/CI_CD/Pipelines/ArduinoManager.md)
 
 -  CI/CD (Deploy)
+    - [CI/CD статического сайта (HTML + CSS + JS) на GitHub Pages](/content/DevOps/CI_CD/Pipelines/CI_CD_static_site_Deploy.md)
     - [CI/CD на GitHub Pages](/content/DevOps/CI_CD/Pipelines/CI_Deploy_GitHub_Pages.md)
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
