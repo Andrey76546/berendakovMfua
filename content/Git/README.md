@@ -1,6 +1,6 @@
 ## Git. Основы
 
-git.md
+`git.md`
 
 ![Linus](/content/img/linus-torvalds-about-nvidia-june-2012.jpg)
 
