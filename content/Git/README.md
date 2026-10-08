@@ -367,4 +367,6 @@ git merge anybranch
 
 ![Какой-то текст](/content/Git/img/4.jpg)
 
+![Logo](/content/Git/img/67.jpeg)
+
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
