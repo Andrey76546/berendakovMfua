@@ -9,6 +9,7 @@
 - [Docker](/content/Docker/README.md)
 - [DevOps](/content/DevOps/README.md)
 - [Практические задания](/content/StudentPracticalsLabs/README.md)
+- [Практическая работа: Go CI/CD и GHCR](/hello-go/README.md)
 - Предметы:
     - [Инструментальные средства разработки ПО](/content/Courses/SoftwareDevelopmentTools/)
     - [Информационные технологии](/content/Courses/IT/)
