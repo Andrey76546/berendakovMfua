@@ -1,0 +1,8 @@
+!go.mod
+!go.sum
+/hello-go
+/coverage.out
+.env
+.idea/
+.vscode/
+*.iml

@@ -1,0 +1,92 @@
+name: Hello Go CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hello-go/**"
+      - ".github/workflows/hello-go-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "hello-go/**"
+      - ".github/workflows/hello-go-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: hello-go-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-publish:
+    name: Test, build and publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        working-directory: hello-go
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: hello-go/go.mod
+          cache: true
+          cache-dependency-path: hello-go/go.mod
+
+      - name: Check formatting
+        shell: bash
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [[ -n "$unformatted" ]]; then
+            echo "The following files are not formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: Build application
+        run: CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o hello-go .
+
+      - name: Smoke test application
+        run: ./hello-go
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/hello-go
+          tags: |
+            type=sha,prefix=,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and publish Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./hello-go
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
