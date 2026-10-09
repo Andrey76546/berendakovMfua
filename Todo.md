@@ -127,7 +127,7 @@
                 - CI/CD на Go с публикацией бинарников в GitHub Releases +/-
                 - Python+PyInstaller с публикацией бинарников в GitHub Releases
                 - CI/CD на C#/.NET с публикацией бинарников в GitHub Releases
-Отличники:
+Отличники: Роднко (),
 
 08.10 9681 ОС и среды
 
