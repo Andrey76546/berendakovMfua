@@ -1,6 +1,6 @@
 ## Git. Основы
 
-git.md
+`git.md`
 
 ![Linus](/content/img/linus-torvalds-about-nvidia-june-2012.jpg)
 
@@ -318,6 +318,10 @@ git push --set-upstream origin test
 ```shell
 git switch -
 ```
+или переключиться на указанную ветку
+```shell
+git switch master
+```
 Удалить локальную ветку
 ```shell
 git branch -d test
@@ -366,5 +370,7 @@ git merge anybranch
 ![Какой-то текст](/content/Git/img/3.jpg)
 
 ![Какой-то текст](/content/Git/img/4.jpg)
+
+![Logo](/content/Git/img/67.jpeg)
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
