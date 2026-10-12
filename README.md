@@ -179,9 +179,10 @@ git config --global user.email "rosa@mail.ru"
             - `sl`
             - `ascii -d`
             - `inxi -F`
-            - `cmatrix`
+            - `cmatrix` - выйти из "матрицы" по клавише **Q**
             - `cacafire`
     - Для старых версий **Windows 10**. **(Не обязательно!)** Если обновления **Ubuntu** завершаться ошибкой, то надо в **Windows PowerShell** (Администратор) задать версию **WSL 2** по умолчанию: `wsl --set-default-version 2`
+    - Для удаления Ubuntu WSL выполнить: `wsl --unregister Unbuntu` и `winget uninstall Ubuntu` и перезагрузить компьютер
 
 > Если компьютер не тянет для **WSL 2.0** и **Docker**, то можно попробовать выполнять задачи в [**Codespace**](https://github.com/features/codespaces) (но не желательно, т.к. очень ограниченный функционал!)
 
