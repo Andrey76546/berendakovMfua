@@ -27,6 +27,8 @@ docker compose up -d
 
 ## Скриншоты выполнения
 
-- [ ] `docker compose ps` с запущенными сервисами.
-- [ ] Главная страница phpMyAdmin на `localhost:8083`.
-- [ ] Таблица `compose_check` и строка `mysql-ok` в phpMyAdmin.
+Настоящий снимок страницы входа сделан в изолированном браузере. Поля учётных данных оставлены пустыми; пароли не отображаются.
+
+![Страница входа phpMyAdmin](screenshots/phpmyadmin-login.png)
+
+Состояние контейнеров дополнительно подтверждено командой `docker compose ps`: MySQL — `healthy`, phpMyAdmin — `Up`. SQL-проверка вернула строку `1 | mysql-ok`.

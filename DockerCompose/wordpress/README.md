@@ -26,6 +26,8 @@ docker compose up -d
 
 ## Скриншоты выполнения
 
-- [ ] `docker compose ps` с MySQL `healthy` и WordPress `Up`.
-- [ ] Главная страница сайта на `localhost:8081`.
-- [ ] Форма входа или панель администратора WordPress без видимого пароля.
+Настоящий снимок публичной главной страницы сделан в изолированном браузере.
+
+![Главная страница WordPress](screenshots/wordpress-home.png)
+
+Команда `docker compose ps` подтвердила MySQL `healthy` и WordPress `Up`; запрос к БД вернул корректный `siteurl` и одного учебного пользователя.

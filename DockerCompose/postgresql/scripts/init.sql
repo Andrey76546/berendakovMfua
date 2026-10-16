@@ -1,6 +1,8 @@
 CREATE USER app_user WITH PASSWORD :'app_password';
 CREATE DATABASE app_db OWNER app_user;
 
+\connect app_db app_user
+
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,

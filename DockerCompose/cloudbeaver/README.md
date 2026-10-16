@@ -23,6 +23,10 @@ docker compose up -d
 
 ## Скриншоты выполнения
 
-- [ ] `docker compose ps` с CloudBeaver `Up`.
-- [ ] Стартовая страница или мастер настройки на `localhost:8978`.
-- [ ] Страница `/status` либо настроенный интерфейс без секретов.
+Оба снимка настоящие и сделаны в изолированном браузере. Headless-клиент остался на встроенном экране установки, поэтому отдельно зафиксирован серверный endpoint `/status`.
+
+![Экран загрузки CloudBeaver](screenshots/cloudbeaver-setup.png)
+
+![Статус CloudBeaver](screenshots/cloudbeaver-status.png)
+
+`/status` подтвердил `health: ok`, продукт CloudBeaver Community и версию 26.2.2.202610050917. Секреты и учётные данные отсутствуют.

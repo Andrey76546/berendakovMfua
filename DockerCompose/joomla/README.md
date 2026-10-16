@@ -26,6 +26,8 @@ docker compose up -d
 
 ## Скриншоты выполнения
 
-- [ ] `docker compose ps` с MariaDB `healthy` и Joomla `Up`.
-- [ ] Главная страница Joomla на `localhost:8082`.
-- [ ] Страница входа администратора на `/administrator/` без видимого пароля.
+Настоящий снимок публичной главной страницы сделан в изолированном браузере. Поля формы входа пусты.
+
+![Главная страница Joomla](screenshots/joomla-home.png)
+
+Команда `docker compose ps` подтвердила MariaDB `healthy` и Joomla `Up`; проверка базы вернула 76 таблиц.

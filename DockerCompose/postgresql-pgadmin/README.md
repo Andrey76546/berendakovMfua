@@ -26,6 +26,8 @@ pgAdmin: <http://localhost:5050>. Учебная учётная запись з�
 
 ## Скриншоты выполнения
 
-- [ ] `docker compose ps` с PostgreSQL `healthy` и pgAdmin `Up`.
-- [ ] Страница входа pgAdmin на `localhost:5050`.
-- [ ] Query Tool с результатом строки `pgadmin-ok`.
+Настоящий снимок страницы входа получен в изолированном браузере. Учётные данные не вводились и не отображаются.
+
+![Страница входа pgAdmin](screenshots/pgadmin-login.png)
+
+Команда `docker compose ps` подтвердила PostgreSQL `healthy` и pgAdmin `Up`; отдельный SQL-запрос вернул строку `1 | pgadmin-ok`.
