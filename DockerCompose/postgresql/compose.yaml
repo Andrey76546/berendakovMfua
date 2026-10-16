@@ -1,0 +1,26 @@
+name: dc-postgresql
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lab_database
+      POSTGRES_USER: lab_user
+      POSTGRES_PASSWORD: ${DC_POSTGRES_PASSWORD:?Set DC_POSTGRES_PASSWORD}
+      POSTGRES_APP_PASSWORD: ${DC_POSTGRES_APP_PASSWORD:?Set DC_POSTGRES_APP_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+      - ./scripts/init.sql:/opt/lab/init.sql:ro
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  postgres_data:

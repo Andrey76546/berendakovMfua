@@ -1,0 +1,17 @@
+name: dc-homehub
+
+services:
+  homehub:
+    image: ghcr.io/surajverma/homehub:latest
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY: ${DC_HOMEHUB_SECRET_KEY:?Set DC_HOMEHUB_SECRET_KEY}
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./media:/app/media
+      - ./pdfs:/app/pdfs
+      - ./data:/app/data
+      - ./config.yml:/app/config.yml:ro

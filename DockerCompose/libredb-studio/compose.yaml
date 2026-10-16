@@ -1,0 +1,27 @@
+name: dc-libredb-studio
+
+services:
+  libredb-studio:
+    image: ghcr.io/libredb/libredb-studio:latest
+    restart: unless-stopped
+    environment:
+      HOSTNAME: 0.0.0.0
+      STORAGE_PROVIDER: sqlite
+      STORAGE_SQLITE_PATH: /app/data/libredb-storage.db
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - libredb_data:/app/data
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/login').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  libredb_data:

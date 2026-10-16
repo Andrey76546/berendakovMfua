@@ -1,0 +1,11 @@
+# Локальные секреты и данные контейнеров не публикуются.
+**/.env
+**/data/**
+**/workspace/**
+**/uploads/**
+**/media/**
+**/pdfs/**
+**/backups/**
+*.db
+*.sqlite
+*.sqlite3

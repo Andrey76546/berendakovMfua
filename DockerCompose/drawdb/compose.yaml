@@ -1,0 +1,8 @@
+name: dc-drawdb
+
+services:
+  drawdb:
+    image: ghcr.io/drawdb-io/drawdb:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5173:80"

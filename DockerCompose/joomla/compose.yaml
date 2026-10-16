@@ -1,0 +1,43 @@
+name: dc-joomla
+
+services:
+  db:
+    image: mariadb:11.5.2
+    restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+      MARIADB_DATABASE: joomla_db
+      MARIADB_USER: joomla_user
+      MARIADB_PASSWORD: ${DC_JOOMLA_DB_PASSWORD:?Set DC_JOOMLA_DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  joomla:
+    image: joomla:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      JOOMLA_DB_HOST: db:3306
+      JOOMLA_DB_USER: joomla_user
+      JOOMLA_DB_PASSWORD: ${DC_JOOMLA_DB_PASSWORD:?Set DC_JOOMLA_DB_PASSWORD}
+      JOOMLA_DB_NAME: joomla_db
+      JOOMLA_SITE_NAME: Docker Compose Lab
+      JOOMLA_ADMIN_USER: Lab Administrator
+      JOOMLA_ADMIN_USERNAME: dcadmin
+      JOOMLA_ADMIN_PASSWORD: ${DC_JOOMLA_ADMIN_PASSWORD:?Set DC_JOOMLA_ADMIN_PASSWORD}
+      JOOMLA_ADMIN_EMAIL: admin@example.test
+    ports:
+      - "127.0.0.1:8082:80"
+    volumes:
+      - joomla_data:/var/www/html
+
+volumes:
+  db_data:
+  joomla_data:
