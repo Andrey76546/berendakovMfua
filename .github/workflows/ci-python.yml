@@ -1,0 +1,66 @@
+name: Python CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "CI/02-python/**"
+      - ".github/workflows/ci-python.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "CI/02-python/**"
+      - ".github/workflows/ci-python.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: CI/02-python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: CI/02-python/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: Lint with flake8
+        run: flake8 myapp tests setup.py --count --max-line-length=127 --statistics
+
+      - name: Test with pytest
+        run: pytest tests/
+
+  docker-build:
+    name: Build Docker image (no push)
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: CI/02-python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t my-python-app:test .
