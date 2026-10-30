@@ -21,7 +21,7 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ 'ba043e4b-d1d4-11f1-9b06-7eea6a5c714c:1-18';
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '7abe4bd8-d430-11f1-a3a4-1a943f5949c9:1-21';
 
 --
 -- Table structure for table `customers`
@@ -47,7 +47,7 @@ CREATE TABLE `customers` (
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
-INSERT INTO `customers` VALUES (1,'Иван Иванов','ivan@example.com','Москва','2026-10-27 07:46:12'),(2,'Пётр Петров','petr@example.com','Санкт-Петербург','2026-10-27 07:46:12'),(3,'Мария Сидорова','maria@example.com','Москва','2026-10-27 07:46:12'),(4,'Алексей Смирнов','alex@example.com','Екатеринбург','2026-10-27 07:46:12'),(5,'Ольга Кузнецова','olga@example.com','Новосибирск','2026-10-27 07:46:12');
+INSERT INTO `customers` VALUES (1,'Иван Иванов','ivan@example.com','Москва','2026-10-30 07:48:58'),(2,'Пётр Петров','petr@example.com','Санкт-Петербург','2026-10-30 07:48:58'),(3,'Мария Сидорова','maria@example.com','Москва','2026-10-30 07:48:58'),(4,'Алексей Смирнов','alex@example.com','Екатеринбург','2026-10-30 07:48:58'),(5,'Ольга Кузнецова','olga@example.com','Новосибирск','2026-10-30 07:48:58');
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,4 +90,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-27  7:57:01
+-- Dump completed on 2026-10-30  8:14:31
