@@ -21,7 +21,7 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '3e64093c-d66c-11f1-a55e-9652596c8ef2:1-10';
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '515a0b43-d6a5-11f1-aef3-e63e39c84957:1-10';
 
 --
 -- Table structure for table `products1`
@@ -79,4 +79,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-02  3:25:37
+-- Dump completed on 2026-11-02 10:30:43
