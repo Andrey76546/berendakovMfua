@@ -178,6 +178,7 @@ git config --global user.email "rosa@mail.ru"
             - Если забыли пароль от **Ubuntu**, `passwd имя_пользователя` (получить имя пользователя Ubuntu командой `ls /home`)
             - Установить дополнительные утилиты в **Ubuntu**: в терминале **Ubuntu** запустить команду `sudo apt update && sudo apt install -y mc htop tree whois sl fastfetch wget curl inxi ncdu micro xclip xsel cmatrix caca-utils lm-sensors nyancat net-tools`
             - Установить поддержку `g++` и `clang++` в терминале **Ubuntu**: `sudo apt update && sudo apt install -y build-essential git gdb ascii clang mingw-w64`
+            - Добавить пользователя в группу `sudo usermod -aG docker $USER` для полноценной работы **Docker** в **Ubuntu WSL**
             - Проверить работу **Ubuntu** командами:
             - `uname -a` - краткая информация о системе
             - `neofetch` или `fastfetch` - наглядная ин-фа о системе
@@ -207,6 +208,7 @@ git config --global user.email "rosa@mail.ru"
 1. Запустить **Docker Desktop** (можно добавить в автозагрузку для удобства);
 1. Установить и запустить тестовый контейнер `docker run hello-world`
 1. Если `docker run hello-world` не срабатывает, то в **Ubuntu WSL** выполните `sudo service docker restart`
+1. Включите интеграцию с **WSL**: После запуска **Docker Desktop** перейдите в **Settings** (Настройки) → Resources (Ресурсы) → **WSL Integration** (Интеграция с WSL).
 
 > Если компьютер не тянет в **WSL 2.0** и **Docker**, то можно ограничется [Codespace](https://github.com/features/codespaces) (но не желательно, т.к. очень ограниченный функционал!)
 
@@ -261,7 +263,7 @@ git config --global user.email "rosa@mail.ru"
 ```shell
 code .
 ```
-*коде точка
+*code точка
 
 [Подробней о настройках VSCode](https://gitflic.ru/project/rurewa/education/blob?file=content/Programming/VCode.md&branch=master&mode=markdown)
 
