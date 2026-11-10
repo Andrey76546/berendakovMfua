@@ -1,0 +1,18 @@
+=== Версия, настройки и данные рабочей базы ===
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql_version
+8.0.46
+Variable_name	Value
+general_log_file	/var/lib/mysql/general.log
+Variable_name	Value
+log_output	FILE
+customers_count	orders_count	employees_count
+5	6	6
+=== Проверка восстановления alias_dump.sql ===
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+restored_customers	restored_orders	restored_employees
+5	6	6
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Дамп успешно восстановлен и проверен; временная база удалена.

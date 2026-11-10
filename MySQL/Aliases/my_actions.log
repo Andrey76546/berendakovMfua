@@ -1,0 +1,24 @@
+2026-11-10T06:50:49.292135Z	    9 Query	CREATE DATABASE alias_db
+2026-11-10T06:50:49.314650Z	    9 Query	SELECT DATABASE()
+2026-11-10T06:50:49.314979Z	    9 Query	CREATE TABLE customers (
+2026-11-10T06:50:49.457562Z	    9 Query	CREATE TABLE orders (
+2026-11-10T06:50:49.599479Z	    9 Query	CREATE TABLE employees (
+2026-11-10T06:50:49.724330Z	    9 Query	INSERT INTO customers (name, email, city) VALUES
+2026-11-10T06:50:49.745418Z	    9 Query	INSERT INTO orders (customer_id, order_date, amount, status) VALUES
+2026-11-10T06:50:49.761910Z	    9 Query	INSERT INTO employees (name, position, manager_id) VALUES
+2026-11-10T06:50:49.777920Z	    9 Query	SELECT * FROM customers
+2026-11-10T06:50:49.778286Z	    9 Query	SELECT * FROM orders
+2026-11-10T06:50:49.778439Z	    9 Query	SELECT * FROM employees
+2026-11-10T06:50:50.243848Z	   10 Query	SELECT DATABASE()
+2026-11-10T06:50:50.244009Z	   10 Query	SELECT c.name, o.order_date, o.amount
+2026-11-10T06:50:50.244284Z	   10 Query	SELECT e.name AS employee, m.name AS manager
+2026-11-10T06:50:50.244497Z	   10 Query	SELECT c.id AS customer_id, o.id AS order_id
+2026-11-10T06:50:50.244640Z	   10 Query	SELECT *
+2026-11-10T06:50:50.244902Z	   10 Query	SELECT name AS customer_name,
+2026-11-10T06:50:50.245090Z	   10 Query	SELECT customer_id,
+2026-11-10T06:50:50.245336Z	   10 Query	SELECT id, amount * 2 AS double_amount
+2026-11-10T06:50:50.245520Z	   10 Query	SELECT id, amount * 2 AS double_amount
+2026-11-10T06:50:50.245665Z	   10 Query	SELECT c.name AS customer_name, totals.total AS total_amount
+2026-11-10T06:50:50.245915Z	   10 Query	SELECT c.name AS customer_name,
+2026-11-10T06:50:50.246080Z	   10 Query	SELECT c.name AS customer,
+2026-11-10T06:50:50.246298Z	   10 Query	SELECT c.name AS customer_name,
