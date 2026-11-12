@@ -1,0 +1,78 @@
+mysql: [Warning] World-writable config file '/etc/mysql/conf.d/my.cnf' is ignored.
+--------------
+INSERT INTO customers_3nf (customer_name, customer_city)
+SELECT DISTINCT customer_name, customer_city
+FROM orders_bad
+--------------
+
+--------------
+INSERT INTO products_3nf (product_name, product_price)
+SELECT DISTINCT product_name, product_price
+FROM orders_bad
+--------------
+
+--------------
+INSERT INTO orders_3nf (order_id, customer_id, order_date)
+SELECT o.order_id, c.customer_id, o.order_date
+FROM orders_bad o
+JOIN customers_3nf c
+  ON c.customer_name = o.customer_name
+ AND c.customer_city = o.customer_city
+--------------
+
+--------------
+INSERT INTO order_items_3nf (order_id, product_id, quantity)
+SELECT o.order_id, p.product_id, o.quantity
+FROM orders_bad o
+JOIN products_3nf p
+  ON p.product_name = o.product_name
+ AND p.product_price = o.product_price
+--------------
+
+--------------
+SELECT * FROM customers_3nf
+--------------
+
++-------------+---------------+-------------------------------+
+| customer_id | customer_name | customer_city                 |
++-------------+---------------+-------------------------------+
+|           1 | Иван          | Сочи                          |
+|           2 | Иван          | Москва                        |
+|           3 | Мария         | Казань                        |
+|           4 | Пётр          | Санкт-Петербург               |
++-------------+---------------+-------------------------------+
+--------------
+SELECT * FROM products_3nf
+--------------
+
++------------+----------------+---------------+
+| product_id | product_name   | product_price |
++------------+----------------+---------------+
+|          1 | Яблоки         |           120 |
+|          2 | Лимоны         |           200 |
+|          3 | Каштаны        |           200 |
++------------+----------------+---------------+
+--------------
+SELECT * FROM orders_3nf
+--------------
+
++----------+-------------+------------+
+| order_id | customer_id | order_date |
++----------+-------------+------------+
+|        1 |           1 | 2026-10-01 |
+|        2 |           2 | 2026-10-01 |
+|        3 |           3 | 2026-10-02 |
+|        5 |           4 | 2026-10-04 |
++----------+-------------+------------+
+--------------
+SELECT * FROM order_items_3nf
+--------------
+
++----------+------------+----------+
+| order_id | product_id | quantity |
++----------+------------+----------+
+|        1 |          1 |        2 |
+|        2 |          2 |        1 |
+|        3 |          1 |        3 |
+|        5 |          3 |        2 |
++----------+------------+----------+

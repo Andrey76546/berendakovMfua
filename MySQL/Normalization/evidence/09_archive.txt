@@ -1,0 +1,18 @@
+mysql: [Warning] World-writable config file '/etc/mysql/conf.d/my.cnf' is ignored.
+--------------
+RENAME TABLE orders_bad TO orders_bad_backup
+--------------
+
+--------------
+SHOW TABLES
+--------------
+
++---------------------+
+| Tables_in_shop_norm |
++---------------------+
+| customers_3nf       |
+| order_items_3nf     |
+| orders_3nf          |
+| orders_bad_backup   |
+| products_3nf        |
++---------------------+

@@ -1,0 +1,92 @@
+mysql: [Warning] World-writable config file '/etc/mysql/conf.d/my.cnf' is ignored.
+--------------
+SELECT SUM(product_price * quantity) AS total_old
+FROM orders_bad
+--------------
+
++-----------+
+| total_old |
++-----------+
+|      1200 |
++-----------+
+--------------
+SELECT SUM(p.product_price * oi.quantity) AS total_new
+FROM order_items_3nf oi
+JOIN products_3nf p ON oi.product_id = p.product_id
+--------------
+
++-----------+
+| total_new |
++-----------+
+|      1200 |
++-----------+
+--------------
+SELECT COUNT(DISTINCT order_id) AS old_count FROM orders_bad
+--------------
+
++-----------+
+| old_count |
++-----------+
+|         4 |
++-----------+
+--------------
+SELECT COUNT(*) AS new_count FROM orders_3nf
+--------------
+
++-----------+
+| new_count |
++-----------+
+|         4 |
++-----------+
+--------------
+SELECT COUNT(*) AS old_count FROM
+  (SELECT DISTINCT customer_name, customer_city FROM orders_bad) AS t
+--------------
+
++-----------+
+| old_count |
++-----------+
+|         4 |
++-----------+
+--------------
+SELECT COUNT(*) AS new_count FROM customers_3nf
+--------------
+
++-----------+
+| new_count |
++-----------+
+|         4 |
++-----------+
+--------------
+SELECT COUNT(*) AS old_count FROM
+  (SELECT DISTINCT product_name, product_price FROM orders_bad) AS t
+--------------
+
++-----------+
+| old_count |
++-----------+
+|         3 |
++-----------+
+--------------
+SELECT COUNT(*) AS new_count FROM products_3nf
+--------------
+
++-----------+
+| new_count |
++-----------+
+|         3 |
++-----------+
+--------------
+SELECT SUM(p.product_price * oi.quantity) AS total
+FROM customers_3nf c
+JOIN orders_3nf o       ON c.customer_id = o.customer_id
+JOIN order_items_3nf oi ON o.order_id = oi.order_id
+JOIN products_3nf p     ON oi.product_id = p.product_id
+WHERE c.customer_name = 'Иван'
+--------------
+
++-------+
+| total |
++-------+
+|   440 |
++-------+

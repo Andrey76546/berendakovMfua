@@ -1,0 +1,74 @@
+mysql: [Warning] World-writable config file '/etc/mysql/conf.d/my.cnf' is ignored.
+--------------
+SELECT * FROM orders_bad WHERE customer_name = 'Иван'
+--------------
+
++----------+---------------+---------------+--------------+---------------+----------+------------+
+| order_id | customer_name | customer_city | product_name | product_price | quantity | order_date |
++----------+---------------+---------------+--------------+---------------+----------+------------+
+|        1 | Иван          | Сочи          | Яблоки       |           120 |        2 | 2026-10-01 |
+|        2 | Иван          | Москва        | Лимоны       |           200 |        1 | 2026-10-01 |
++----------+---------------+---------------+--------------+---------------+----------+------------+
+--------------
+UPDATE customers_3nf SET customer_city = 'Сочи' WHERE customer_name = 'Иван'
+--------------
+
+--------------
+SELECT ROW_COUNT() AS ivan_rows_updated
+--------------
+
++-------------------+
+| ivan_rows_updated |
++-------------------+
+|                 1 |
++-------------------+
+--------------
+SELECT * FROM customers_3nf WHERE customer_name = 'Иван'
+--------------
+
++-------------+---------------+---------------+
+| customer_id | customer_name | customer_city |
++-------------+---------------+---------------+
+|           1 | Иван          | Сочи          |
+|           2 | Иван          | Сочи          |
++-------------+---------------+---------------+
+--------------
+DELETE FROM order_items_3nf
+WHERE order_id IN (
+    SELECT o.order_id
+    FROM orders_3nf o
+    JOIN customers_3nf c ON o.customer_id = c.customer_id
+    WHERE c.customer_name = 'Мария'
+)
+--------------
+
+--------------
+DELETE FROM orders_3nf
+WHERE customer_id IN (
+    SELECT customer_id FROM customers_3nf WHERE customer_name = 'Мария'
+)
+--------------
+
+--------------
+SELECT * FROM customers_3nf WHERE customer_name = 'Мария'
+--------------
+
++-------------+---------------+---------------+
+| customer_id | customer_name | customer_city |
++-------------+---------------+---------------+
+|           3 | Мария         | Казань        |
++-------------+---------------+---------------+
+--------------
+INSERT INTO customers_3nf (customer_name, customer_city)
+VALUES ('Новый клиент', 'Тверь')
+--------------
+
+--------------
+SELECT * FROM customers_3nf WHERE customer_name = 'Новый клиент'
+--------------
+
++-------------+-------------------------+---------------+
+| customer_id | customer_name           | customer_city |
++-------------+-------------------------+---------------+
+|           8 | Новый клиент            | Тверь         |
++-------------+-------------------------+---------------+

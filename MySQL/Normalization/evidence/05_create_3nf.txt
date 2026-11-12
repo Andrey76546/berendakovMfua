@@ -1,0 +1,94 @@
+mysql: [Warning] World-writable config file '/etc/mysql/conf.d/my.cnf' is ignored.
+--------------
+CREATE TABLE customers_3nf (
+    customer_id   INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(100) NOT NULL,
+    customer_city VARCHAR(100) NOT NULL
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+--------------
+
+--------------
+CREATE TABLE products_3nf (
+    product_id    INT AUTO_INCREMENT PRIMARY KEY,
+    product_name  VARCHAR(100) NOT NULL,
+    product_price INT NOT NULL
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+--------------
+
+--------------
+CREATE TABLE orders_3nf (
+    order_id    INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_date  DATE NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers_3nf(customer_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+--------------
+
+--------------
+CREATE TABLE order_items_3nf (
+    order_id   INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity   INT NOT NULL,
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id)   REFERENCES orders_3nf(order_id),
+    FOREIGN KEY (product_id) REFERENCES products_3nf(product_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+--------------
+
+--------------
+SHOW TABLES
+--------------
+
++---------------------+
+| Tables_in_shop_norm |
++---------------------+
+| customers_3nf       |
+| order_items_3nf     |
+| orders_3nf          |
+| orders_bad          |
+| products_3nf        |
++---------------------+
+--------------
+DESCRIBE customers_3nf
+--------------
+
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| customer_id   | int          | NO   | PRI | NULL    | auto_increment |
+| customer_name | varchar(100) | NO   |     | NULL    |                |
+| customer_city | varchar(100) | NO   |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+--------------
+DESCRIBE products_3nf
+--------------
+
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| product_id    | int          | NO   | PRI | NULL    | auto_increment |
+| product_name  | varchar(100) | NO   |     | NULL    |                |
+| product_price | int          | NO   |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+--------------
+DESCRIBE orders_3nf
+--------------
+
++-------------+------+------+-----+---------+----------------+
+| Field       | Type | Null | Key | Default | Extra          |
++-------------+------+------+-----+---------+----------------+
+| order_id    | int  | NO   | PRI | NULL    | auto_increment |
+| customer_id | int  | NO   | MUL | NULL    |                |
+| order_date  | date | NO   |     | NULL    |                |
++-------------+------+------+-----+---------+----------------+
+--------------
+DESCRIBE order_items_3nf
+--------------
+
++------------+------+------+-----+---------+-------+
+| Field      | Type | Null | Key | Default | Extra |
++------------+------+------+-----+---------+-------+
+| order_id   | int  | NO   | PRI | NULL    |       |
+| product_id | int  | NO   | PRI | NULL    |       |
+| quantity   | int  | NO   |     | NULL    |       |
++------------+------+------+-----+---------+-------+
