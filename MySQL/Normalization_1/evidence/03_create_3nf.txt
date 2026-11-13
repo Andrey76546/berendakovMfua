@@ -1,0 +1,36 @@
++---------------------------+
+| Tables_in_normalization_1 |
++---------------------------+
+| customers                 |
+| products                  |
+| report_items              |
+| reports                   |
+| sales_unnormalized_2      |
++---------------------------+
++--------------+---------------+---------------+-------------+------------+
+| TABLE_NAME   | COLUMN_NAME   | COLUMN_TYPE   | IS_NULLABLE | COLUMN_KEY |
++--------------+---------------+---------------+-------------+------------+
+| customers    | customer_id   | int           | NO          | PRI        |
+| customers    | customer_name | varchar(100)  | NO          |            |
+| products     | product_id    | int           | NO          | PRI        |
+| products     | product_name  | varchar(100)  | NO          |            |
+| products     | price         | decimal(10,2) | NO          |            |
+| reports      | report_id     | int           | NO          | PRI        |
+| reports      | report_date   | date          | NO          |            |
+| reports      | customer_id   | int           | NO          | MUL        |
+| report_items | report_id     | int           | NO          | PRI        |
+| report_items | product_id    | int           | NO          | PRI        |
+| report_items | quantity      | int           | NO          |            |
++--------------+---------------+---------------+-------------+------------+
++--------------+-------------------------+-------------+------------------+
+| TABLE_NAME   | CONSTRAINT_NAME         | COLUMN_NAME | references_table |
++--------------+-------------------------+-------------+------------------+
+| customers    | PRIMARY                 | customer_id | -                |
+| products     | PRIMARY                 | product_id  | -                |
+| report_items | fk_report_items_product | product_id  | products         |
+| report_items | fk_report_items_report  | report_id   | reports          |
+| report_items | PRIMARY                 | report_id   | -                |
+| report_items | PRIMARY                 | product_id  | -                |
+| reports      | fk_reports_customer     | customer_id | customers        |
+| reports      | PRIMARY                 | report_id   | -                |
++--------------+-------------------------+-------------+------------------+

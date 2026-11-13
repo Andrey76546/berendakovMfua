@@ -1,0 +1,14 @@
++-------------------------------+
+| Tables_in_normalization_1     |
++-------------------------------+
+| customers                     |
+| products                      |
+| report_items                  |
+| reports                       |
+| sales_unnormalized_2_archived |
++-------------------------------+
++----------------------+
+| archived_source_rows |
++----------------------+
+|                    7 |
++----------------------+

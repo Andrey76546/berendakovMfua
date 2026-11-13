@@ -1,0 +1,209 @@
+2026-11-13 10:24:06.540920\tthread=13\tSELECT @@global.general_log AS general_log_enabled,\n       @@global.log_output AS log_output
+2026-11-13 10:24:22.586664\tthread=14\tselect @@version_comment limit 1
+2026-11-13 10:24:22.586910\tthread=14\tDROP DATABASE IF EXISTS normalization_1
+2026-11-13 10:24:22.619832\tthread=14\tSELECT DATABASE()
+2026-11-13 10:24:22.620009\tthread=14\tCREATE DATABASE normalization_1\n    CHARACTER SET utf8mb4\n    COLLATE utf8mb4_0900_ai_ci
+2026-11-13 10:24:22.627737\tthread=14\tSELECT DATABASE()
+2026-11-13 10:24:22.628033\tthread=14\tCREATE TABLE sales_unnormalized_2 (\n    report_id     INT,\n    report_date   DATE,\n    customer_id   INT,\n    customer_name VARCHAR(100),\n    product_id    INT,\n    product_name  VARCHAR(100),\n    price         DECIMAL(10,2),\n    quantity      INT\n)
+2026-11-13 10:24:22.670109\tthread=14\tINSERT INTO sales_unnormalized_2 VALUES\n    (1101, '2026-03-05', 12, 'Дания',   101, 'Дыни',      800, 1100),\n    (1101, '2026-03-05', 12, 'Дания',   102, 'Клубника',  150,  300),\n    (1102, '2026-03-07', 23, 'Испания', 103, 'Яблоки',    120, 1700),\n    (1103, '2026-03-08', 25, 'Албания', 104, 'Лимоны',    200,  500),\n    (1104, '2026-03-10', 12, 'Дания',   101, 'Дыни',      800, 2500),\n    (1105, '2026-03-12', 25, 'Албания', 103, 'Яблоки',    120, 2000),\n    (1105, '2026-03-12', 25, 'Албания', 104, 'Лимоны',    200,  700)
+2026-11-13 10:24:22.679843\tthread=14\tSHOW TABLES
+2026-11-13 10:24:22.681040\tthread=14\tSELECT *\nFROM sales_unnormalized_2\nORDER BY report_id, product_id
+2026-11-13 10:24:22.681263\tthread=14\tSELECT COUNT(*) AS source_rows,\n       COUNT(DISTINCT report_id) AS source_reports,\n       COUNT(DISTINCT customer_id) AS source_customers,\n       COUNT(DISTINCT product_id) AS source_products,\n       SUM(price * quantity) AS source_total\nFROM sales_unnormalized_2
+2026-11-13 10:25:07.832012\tthread=15\tselect @@version_comment limit 1
+2026-11-13 10:25:07.832261\tthread=15\tSELECT DATABASE()
+2026-11-13 10:25:07.832429\tthread=15\tSELECT 'UPDATE anomaly: one copy changes, the other copies become inconsistent' AS demonstration
+2026-11-13 10:25:07.832510\tthread=15\tSTART TRANSACTION
+2026-11-13 10:25:07.832592\tthread=15\tUPDATE sales_unnormalized_2\nSET customer_name = 'Дания (изменена одна строка)'\nWHERE report_id = 1101 AND product_id = 101
+2026-11-13 10:25:07.832883\tthread=15\tSELECT report_id, product_id, customer_id, customer_name\nFROM sales_unnormalized_2\nWHERE customer_id = 12\nORDER BY report_id, product_id
+2026-11-13 10:25:07.833021\tthread=15\tROLLBACK
+2026-11-13 10:25:07.835860\tthread=15\tSELECT IF(COUNT(DISTINCT customer_name) = 1, 'PASS: rollback restored the source', 'FAIL') AS rollback_check\nFROM sales_unnormalized_2\nWHERE customer_id = 12
+2026-11-13 10:25:07.836157\tthread=15\tSELECT 'INSERT anomaly: a customer without a report requires a fake incomplete sales row' AS demonstration
+2026-11-13 10:25:07.836303\tthread=15\tSTART TRANSACTION
+2026-11-13 10:25:07.836413\tthread=15\tINSERT INTO sales_unnormalized_2\n    (report_id, report_date, customer_id, customer_name,\n     product_id, product_name, price, quantity)\nVALUES\n    (NULL, NULL, 30, 'Франция', NULL, NULL, NULL, NULL)
+2026-11-13 10:25:07.836604\tthread=15\tSELECT *\nFROM sales_unnormalized_2\nWHERE customer_id = 30
+2026-11-13 10:25:07.836765\tthread=15\tROLLBACK
+2026-11-13 10:25:07.840261\tthread=15\tSELECT IF(COUNT(*) = 0, 'PASS: fake row removed by rollback', 'FAIL') AS rollback_check\nFROM sales_unnormalized_2\nWHERE customer_id = 30
+2026-11-13 10:25:07.840450\tthread=15\tSELECT 'DELETE anomaly: deleting the only sale also loses the customer data' AS demonstration
+2026-11-13 10:25:07.840535\tthread=15\tSTART TRANSACTION
+2026-11-13 10:25:07.840606\tthread=15\tDELETE FROM sales_unnormalized_2\nWHERE customer_id = 23
+2026-11-13 10:25:07.840804\tthread=15\tSELECT COUNT(*) AS spanish_customer_rows_after_delete\nFROM sales_unnormalized_2\nWHERE customer_id = 23
+2026-11-13 10:25:07.840954\tthread=15\tROLLBACK
+2026-11-13 10:25:07.846684\tthread=15\tSELECT IF(COUNT(*) = 1, 'PASS: rollback restored the source', 'FAIL') AS rollback_check\nFROM sales_unnormalized_2\nWHERE customer_id = 23
+2026-11-13 10:25:08.248628\tthread=16\t/*!40100 SET @@SQL_MODE='' */
+2026-11-13 10:25:08.248678\tthread=16\t/*!40103 SET TIME_ZONE='+00:00' */
+2026-11-13 10:25:08.248744\tthread=16\t/*!80000 SET SESSION information_schema_stats_expiry=0 */
+2026-11-13 10:25:08.248793\tthread=16\tSET SESSION NET_READ_TIMEOUT= 86400, SESSION NET_WRITE_TIMEOUT= 86400
+2026-11-13 10:25:08.248883\tthread=16\tSHOW VARIABLES LIKE 'gtid_mode'
+2026-11-13 10:25:08.251107\tthread=16\tSHOW VARIABLES LIKE 'ndbinfo\\_version'
+2026-11-13 10:25:08.251863\tthread=16\tSHOW CREATE DATABASE IF NOT EXISTS `normalization_1`
+2026-11-13 10:25:08.251934\tthread=16\tshow tables
+2026-11-13 10:25:08.252523\tthread=16\tLOCK TABLES `sales_unnormalized_2` READ /*!32311 LOCAL */
+2026-11-13 10:25:08.252629\tthread=16\tshow table status like 'sales\\_unnormalized\\_2'
+2026-11-13 10:25:08.253367\tthread=16\tSET SQL_QUOTE_SHOW_CREATE=1
+2026-11-13 10:25:08.253433\tthread=16\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:25:08.253500\tthread=16\tshow create table `sales_unnormalized_2`
+2026-11-13 10:25:08.253660\tthread=16\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:25:08.253769\tthread=16\tshow fields from `sales_unnormalized_2`
+2026-11-13 10:25:08.254639\tthread=16\tshow fields from `sales_unnormalized_2`
+2026-11-13 10:25:08.255092\tthread=16\tSELECT /*!40001 SQL_NO_CACHE */ * FROM `sales_unnormalized_2`
+2026-11-13 10:25:08.255231\tthread=16\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:25:08.255319\tthread=16\tuse `normalization_1`
+2026-11-13 10:25:08.255386\tthread=16\tselect @@collation_database
+2026-11-13 10:25:08.255477\tthread=16\tSHOW TRIGGERS LIKE 'sales\\_unnormalized\\_2'
+2026-11-13 10:25:08.256129\tthread=16\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:25:08.256191\tthread=16\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:25:08.256260\tthread=16\tSELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'normalization_1' AND TABLE_NAME = 'sales_unnormalized_2'
+2026-11-13 10:25:08.256484\tthread=16\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:25:08.256549\tthread=16\tUNLOCK TABLES
+2026-11-13 10:25:23.698815\tthread=17\tselect @@version_comment limit 1
+2026-11-13 10:25:23.699115\tthread=17\tSELECT DATABASE()
+2026-11-13 10:25:23.699268\tthread=17\tCREATE TABLE customers (\n    customer_id   INT NOT NULL,\n    customer_name VARCHAR(100) NOT NULL,\n    CONSTRAINT pk_customers PRIMARY KEY (customer_id)\n)
+2026-11-13 10:25:23.736817\tthread=17\tCREATE TABLE products (\n    product_id   INT NOT NULL,\n    product_name VARCHAR(100) NOT NULL,\n    price        DECIMAL(10,2) NOT NULL,\n    CONSTRAINT pk_products PRIMARY KEY (product_id),\n    CONSTRAINT chk_products_price CHECK (price >= 0)\n)
+2026-11-13 10:25:23.776261\tthread=17\tCREATE TABLE reports (\n    report_id   INT NOT NULL,\n    report_date DATE NOT NULL,\n    customer_id INT NOT NULL,\n    CONSTRAINT pk_reports PRIMARY KEY (report_id),\n    CONSTRAINT fk_reports_customer\n        FOREIGN KEY (customer_id) REFERENCES customers (customer_id)\n        ON UPDATE CASCADE ON DELETE RESTRICT\n)
+2026-11-13 10:25:23.830813\tthread=17\tCREATE TABLE report_items (\n    report_id  INT NOT NULL,\n    product_id INT NOT NULL,\n    quantity   INT NOT NULL,\n    CONSTRAINT pk_report_items PRIMARY KEY (report_id, product_id),\n    CONSTRAINT fk_report_items_report\n        FOREIGN KEY (report_id) REFERENCES reports (report_id)\n        ON UPDATE CASCADE ON DELETE RESTRICT,\n    CONSTRAINT fk_report_items_product\n        FOREIGN KEY (product_id) REFERENCES products (product_id)\n        ON UPDATE CASCADE ON DELETE RESTRICT,\n    CONSTRAINT chk_report_items_quantity CHECK (quantity > 0)\n)
+2026-11-13 10:25:23.882441\tthread=17\tSHOW TABLES
+2026-11-13 10:25:23.883312\tthread=17\tSELECT table_name, column_name, column_type, is_nullable, column_key\nFROM information_schema.columns\nWHERE table_schema = 'normalization_1'\n  AND table_name IN ('customers', 'products', 'reports', 'report_items')\nORDER BY FIELD(table_name, 'customers', 'products', 'reports', 'report_items'), ordinal_position
+2026-11-13 10:25:23.883978\tthread=17\tSELECT table_name, constraint_name, column_name,\n       COALESCE(referenced_table_name, '-') AS references_table\nFROM information_schema.key_column_usage\nWHERE table_schema = 'normalization_1'\n  AND table_name IN ('customers', 'products', 'reports', 'report_items')\nORDER BY table_name, constraint_name, ordinal_position
+2026-11-13 10:26:10.630864\tthread=18\tselect @@version_comment limit 1
+2026-11-13 10:26:10.631113\tthread=18\tSELECT DATABASE()
+2026-11-13 10:26:10.631272\tthread=18\tINSERT INTO customers (customer_id, customer_name)\nSELECT DISTINCT customer_id, customer_name\nFROM sales_unnormalized_2
+2026-11-13 10:26:10.638129\tthread=18\tINSERT INTO products (product_id, product_name, price)\nSELECT DISTINCT product_id, product_name, price\nFROM sales_unnormalized_2
+2026-11-13 10:26:10.646322\tthread=18\tINSERT INTO reports (report_id, report_date, customer_id)\nSELECT DISTINCT report_id, report_date, customer_id\nFROM sales_unnormalized_2
+2026-11-13 10:26:10.654534\tthread=18\tINSERT INTO report_items (report_id, product_id, quantity)\nSELECT report_id, product_id, quantity\nFROM sales_unnormalized_2
+2026-11-13 10:26:10.664363\tthread=18\tSELECT (SELECT COUNT(*) FROM customers) AS customers_inserted,\n       (SELECT COUNT(*) FROM products) AS products_inserted,\n       (SELECT COUNT(*) FROM reports) AS reports_inserted,\n       (SELECT COUNT(*) FROM report_items) AS report_items_inserted
+2026-11-13 10:26:11.053827\tthread=19\tselect @@version_comment limit 1
+2026-11-13 10:26:11.054212\tthread=19\tSELECT DATABASE()
+2026-11-13 10:26:11.054597\tthread=19\tSELECT 'source rows = report items' AS check_name,\n       (SELECT COUNT(*) FROM sales_unnormalized_2) AS source_value,\n       (SELECT COUNT(*) FROM report_items) AS normalized_value,\n       IF((SELECT COUNT(*) FROM sales_unnormalized_2) =\n          (SELECT COUNT(*) FROM report_items), 'PASS', 'FAIL') AS result\nUNION ALL\nSELECT 'distinct reports = reports',\n       (SELECT COUNT(DISTINCT report_id) FROM sales_unnormalized_2),\n       (SELECT COUNT(*) FROM reports),\n       IF((SELECT COUNT(DISTINCT report_id) FROM sales_unnormalized_2) =\n          (SELECT COUNT(*) FROM reports), 'PASS', 'FAIL')\nUNION ALL\nSELECT 'distinct customers = customers',\n       (SELECT COUNT(DISTINCT customer_id) FROM sales_unnormalized_2),\n       (SELECT COUNT(*) FROM customers),\n       IF((SELECT COUNT(DISTINCT customer_id) FROM sales_unnormalized_2) =\n          (SELECT COUNT(*) FROM customers), 'PASS', 'FAIL')\nUNION ALL\nSELECT 'distinct products = products',\n       (SELECT COUNT(DISTINCT product_id) FROM sales_unnormalized_2),\n       (SELECT COUNT(*) FROM products),\n       IF((SELECT COUNT(DISTINCT product_id) FROM sales_unnormalized_2) =\n          (SELECT COUNT(*) FROM products), 'PASS', 'FAIL')
+2026-11-13 10:26:11.057556\tthread=19\tSELECT SUM(price * quantity) AS source_total\nFROM sales_unnormalized_2
+2026-11-13 10:26:11.057728\tthread=19\tSELECT SUM(p.price * ri.quantity) AS normalized_total\nFROM report_items AS ri\nJOIN products AS p ON p.product_id = ri.product_id
+2026-11-13 10:26:11.057920\tthread=19\tSELECT source_total, normalized_total,\n       normalized_total - source_total AS difference,\n       IF(source_total = normalized_total, 'PASS', 'FAIL') AS result\nFROM\n    (SELECT SUM(price * quantity) AS source_total\n     FROM sales_unnormalized_2) AS source_sum\nCROSS JOIN\n    (SELECT SUM(p.price * ri.quantity) AS normalized_total\n     FROM report_items AS ri\n     JOIN products AS p ON p.product_id = ri.product_id) AS normalized_sum
+2026-11-13 10:26:11.058140\tthread=19\tSELECT\n    (SELECT COUNT(*)\n     FROM reports AS r\n     LEFT JOIN customers AS c ON c.customer_id = r.customer_id\n     WHERE c.customer_id IS NULL) AS orphan_reports,\n    (SELECT COUNT(*)\n     FROM report_items AS ri\n     LEFT JOIN reports AS r ON r.report_id = ri.report_id\n     WHERE r.report_id IS NULL) AS orphan_report_items,\n    (SELECT COUNT(*)\n     FROM report_items AS ri\n     LEFT JOIN products AS p ON p.product_id = ri.product_id\n     WHERE p.product_id IS NULL) AS orphan_products,\n    @@foreign_key_checks AS foreign_key_checks
+2026-11-13 10:26:11.058333\tthread=19\tSELECT COUNT(*) AS source_rows_not_reconstructed\nFROM sales_unnormalized_2 AS s\nLEFT JOIN (\n    SELECT r.report_id, r.report_date, c.customer_id, c.customer_name,\n           p.product_id, p.product_name, p.price, ri.quantity\n    FROM reports AS r\n    JOIN customers AS c ON c.customer_id = r.customer_id\n    JOIN report_items AS ri ON ri.report_id = r.report_id\n    JOIN products AS p ON p.product_id = ri.product_id\n) AS n\n  ON n.report_id = s.report_id\n AND n.report_date = s.report_date\n AND n.customer_id = s.customer_id\n AND n.customer_name = s.customer_name\n AND n.product_id = s.product_id\n AND n.product_name = s.product_name\n AND n.price = s.price\n AND n.quantity = s.quantity\nWHERE n.report_id IS NULL
+2026-11-13 10:26:11.058554\tthread=19\tSELECT c.customer_id, c.customer_name,\n       SUM(p.price * ri.quantity) AS amount_spent\nFROM customers AS c\nJOIN reports AS r ON r.customer_id = c.customer_id\nJOIN report_items AS ri ON ri.report_id = r.report_id\nJOIN products AS p ON p.product_id = ri.product_id\nWHERE c.customer_id = 12\nGROUP BY c.customer_id, c.customer_name
+2026-11-13 10:26:11.058702\tthread=19\tSELECT c.customer_id, c.customer_name,\n       SUM(p.price * ri.quantity) AS amount_spent\nFROM customers AS c\nJOIN reports AS r ON r.customer_id = c.customer_id\nJOIN report_items AS ri ON ri.report_id = r.report_id\nJOIN products AS p ON p.product_id = ri.product_id\nGROUP BY c.customer_id, c.customer_name\nORDER BY c.customer_id
+2026-11-13 10:26:11.472158\tthread=20\tselect @@version_comment limit 1
+2026-11-13 10:26:11.472314\tthread=20\tSELECT DATABASE()
+2026-11-13 10:26:11.472433\tthread=20\tSELECT 'UPDATE: customer name is stored once and all joined rows see the same value' AS demonstration
+2026-11-13 10:26:11.472497\tthread=20\tSTART TRANSACTION
+2026-11-13 10:26:11.472559\tthread=20\tUPDATE customers\nSET customer_name = 'Дания (единое обновление)'\nWHERE customer_id = 12
+2026-11-13 10:26:11.472809\tthread=20\tSELECT r.report_id, ri.product_id, c.customer_id, c.customer_name\nFROM customers AS c\nJOIN reports AS r ON r.customer_id = c.customer_id\nJOIN report_items AS ri ON ri.report_id = r.report_id\nWHERE c.customer_id = 12\nORDER BY r.report_id, ri.product_id
+2026-11-13 10:26:11.473002\tthread=20\tROLLBACK
+2026-11-13 10:26:11.476611\tthread=20\tSELECT 'INSERT: a customer can exist without a fake report or sale row' AS demonstration
+2026-11-13 10:26:11.476697\tthread=20\tSTART TRANSACTION
+2026-11-13 10:26:11.476757\tthread=20\tINSERT INTO customers (customer_id, customer_name)\nVALUES (30, 'Франция')
+2026-11-13 10:26:11.476880\tthread=20\tSELECT c.customer_id, c.customer_name, COUNT(r.report_id) AS reports_count\nFROM customers AS c\nLEFT JOIN reports AS r ON r.customer_id = c.customer_id\nWHERE c.customer_id = 30\nGROUP BY c.customer_id, c.customer_name
+2026-11-13 10:26:11.477002\tthread=20\tROLLBACK
+2026-11-13 10:26:11.478677\tthread=20\tDROP PROCEDURE IF EXISTS demonstrate_delete_protection
+2026-11-13 10:26:11.482544\tthread=20\tCREATE PROCEDURE demonstrate_delete_protection()\nBEGIN\n    DECLARE fk_blocked BOOLEAN DEFAULT FALSE;\n    DECLARE CONTINUE HANDLER FOR 1451 SET fk_blocked = TRUE;\n\n    START TRANSACTION;\n    DELETE FROM customers WHERE customer_id = 23;\n    SELECT IF(fk_blocked,\n              'PASS: FK blocked deletion of a customer referenced by a report',\n              'FAIL: deletion was not blocked') AS delete_anomaly_result;\n    ROLLBACK;\nEND
+2026-11-13 10:26:11.492177\tthread=20\tCALL demonstrate_delete_protection()
+2026-11-13 10:26:11.498429\tthread=20\tDROP PROCEDURE demonstrate_delete_protection
+2026-11-13 10:26:11.509030\tthread=20\tSELECT IF(EXISTS(SELECT 1 FROM customers WHERE customer_id = 23),\n          'PASS: customer 23 is preserved', 'FAIL') AS customer_preserved
+2026-11-13 10:26:11.890735\tthread=21\tselect @@version_comment limit 1
+2026-11-13 10:26:11.890924\tthread=21\tSELECT DATABASE()
+2026-11-13 10:26:11.891087\tthread=21\tRENAME TABLE sales_unnormalized_2 TO sales_unnormalized_2_archived
+2026-11-13 10:26:11.919260\tthread=21\tSHOW TABLES
+2026-11-13 10:26:11.920224\tthread=21\tSELECT COUNT(*) AS archived_source_rows\nFROM sales_unnormalized_2_archived
+2026-11-13 10:26:12.316982\tthread=22\t/*!40100 SET @@SQL_MODE='' */
+2026-11-13 10:26:12.317030\tthread=22\t/*!40103 SET TIME_ZONE='+00:00' */
+2026-11-13 10:26:12.317089\tthread=22\t/*!80000 SET SESSION information_schema_stats_expiry=0 */
+2026-11-13 10:26:12.317140\tthread=22\tSET SESSION NET_READ_TIMEOUT= 86400, SESSION NET_WRITE_TIMEOUT= 86400
+2026-11-13 10:26:12.317211\tthread=22\tSHOW VARIABLES LIKE 'gtid_mode'
+2026-11-13 10:26:12.319109\tthread=22\tSHOW VARIABLES LIKE 'ndbinfo\\_version'
+2026-11-13 10:26:12.319882\tthread=22\tSHOW CREATE DATABASE IF NOT EXISTS `normalization_1`
+2026-11-13 10:26:12.319951\tthread=22\tshow tables
+2026-11-13 10:26:12.320564\tthread=22\tLOCK TABLES `customers` READ /*!32311 LOCAL */,`products` READ /*!32311 LOCAL */,`report_items` READ /*!32311 LOCAL */,`reports` READ /*!32311 LOCAL */,`sales_unnormalized_2_archived` READ /*!32311 LOCAL */
+2026-11-13 10:26:12.320775\tthread=22\tshow table status like 'customers'
+2026-11-13 10:26:12.321324\tthread=22\tSET SQL_QUOTE_SHOW_CREATE=1
+2026-11-13 10:26:12.321389\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.321442\tthread=22\tshow create table `customers`
+2026-11-13 10:26:12.321573\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.321644\tthread=22\tshow fields from `customers`
+2026-11-13 10:26:12.322068\tthread=22\tshow fields from `customers`
+2026-11-13 10:26:12.322462\tthread=22\tSELECT /*!40001 SQL_NO_CACHE */ * FROM `customers`
+2026-11-13 10:26:12.322617\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.322710\tthread=22\tuse `normalization_1`
+2026-11-13 10:26:12.322799\tthread=22\tselect @@collation_database
+2026-11-13 10:26:12.322973\tthread=22\tSHOW TRIGGERS LIKE 'customers'
+2026-11-13 10:26:12.323562\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.323632\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.323697\tthread=22\tSELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'normalization_1' AND TABLE_NAME = 'customers'
+2026-11-13 10:26:12.323841\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.323927\tthread=22\tshow table status like 'products'
+2026-11-13 10:26:12.324551\tthread=22\tSET SQL_QUOTE_SHOW_CREATE=1
+2026-11-13 10:26:12.324636\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.324689\tthread=22\tshow create table `products`
+2026-11-13 10:26:12.324844\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.324942\tthread=22\tshow fields from `products`
+2026-11-13 10:26:12.325372\tthread=22\tshow fields from `products`
+2026-11-13 10:26:12.325762\tthread=22\tSELECT /*!40001 SQL_NO_CACHE */ * FROM `products`
+2026-11-13 10:26:12.325875\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.325931\tthread=22\tuse `normalization_1`
+2026-11-13 10:26:12.326016\tthread=22\tselect @@collation_database
+2026-11-13 10:26:12.326118\tthread=22\tSHOW TRIGGERS LIKE 'products'
+2026-11-13 10:26:12.326454\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.326528\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.326601\tthread=22\tSELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'normalization_1' AND TABLE_NAME = 'products'
+2026-11-13 10:26:12.326741\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.326824\tthread=22\tshow table status like 'report\\_items'
+2026-11-13 10:26:12.327380\tthread=22\tSET SQL_QUOTE_SHOW_CREATE=1
+2026-11-13 10:26:12.327448\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.327497\tthread=22\tshow create table `report_items`
+2026-11-13 10:26:12.327602\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.327664\tthread=22\tshow fields from `report_items`
+2026-11-13 10:26:12.328034\tthread=22\tshow fields from `report_items`
+2026-11-13 10:26:12.328457\tthread=22\tSELECT /*!40001 SQL_NO_CACHE */ * FROM `report_items`
+2026-11-13 10:26:12.328570\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.328626\tthread=22\tuse `normalization_1`
+2026-11-13 10:26:12.328722\tthread=22\tselect @@collation_database
+2026-11-13 10:26:12.328828\tthread=22\tSHOW TRIGGERS LIKE 'report\\_items'
+2026-11-13 10:26:12.329162\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.329234\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.329320\tthread=22\tSELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'normalization_1' AND TABLE_NAME = 'report_items'
+2026-11-13 10:26:12.329465\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.329530\tthread=22\tshow table status like 'reports'
+2026-11-13 10:26:12.329994\tthread=22\tSET SQL_QUOTE_SHOW_CREATE=1
+2026-11-13 10:26:12.330053\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.330102\tthread=22\tshow create table `reports`
+2026-11-13 10:26:12.330214\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.330276\tthread=22\tshow fields from `reports`
+2026-11-13 10:26:12.330645\tthread=22\tshow fields from `reports`
+2026-11-13 10:26:12.331055\tthread=22\tSELECT /*!40001 SQL_NO_CACHE */ * FROM `reports`
+2026-11-13 10:26:12.331206\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.331275\tthread=22\tuse `normalization_1`
+2026-11-13 10:26:12.331343\tthread=22\tselect @@collation_database
+2026-11-13 10:26:12.331436\tthread=22\tSHOW TRIGGERS LIKE 'reports'
+2026-11-13 10:26:12.331883\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.331972\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.332039\tthread=22\tSELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'normalization_1' AND TABLE_NAME = 'reports'
+2026-11-13 10:26:12.332168\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.332257\tthread=22\tshow table status like 'sales\\_unnormalized\\_2\\_archived'
+2026-11-13 10:26:12.332743\tthread=22\tSET SQL_QUOTE_SHOW_CREATE=1
+2026-11-13 10:26:12.332791\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.332836\tthread=22\tshow create table `sales_unnormalized_2_archived`
+2026-11-13 10:26:12.332956\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.333019\tthread=22\tshow fields from `sales_unnormalized_2_archived`
+2026-11-13 10:26:12.333430\tthread=22\tshow fields from `sales_unnormalized_2_archived`
+2026-11-13 10:26:12.333835\tthread=22\tSELECT /*!40001 SQL_NO_CACHE */ * FROM `sales_unnormalized_2_archived`
+2026-11-13 10:26:12.334043\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.334192\tthread=22\tuse `normalization_1`
+2026-11-13 10:26:12.334284\tthread=22\tselect @@collation_database
+2026-11-13 10:26:12.334398\tthread=22\tSHOW TRIGGERS LIKE 'sales\\_unnormalized\\_2\\_archived'
+2026-11-13 10:26:12.334759\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.334817\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.334884\tthread=22\tSELECT COLUMN_NAME,                       JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'normalization_1' AND TABLE_NAME = 'sales_unnormalized_2_archived'
+2026-11-13 10:26:12.335058\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.335126\tthread=22\tLOCK TABLES mysql.proc READ
+2026-11-13 10:26:12.335389\tthread=22\tuse `normalization_1`
+2026-11-13 10:26:12.335448\tthread=22\tselect @@collation_database
+2026-11-13 10:26:12.335502\tthread=22\tSET SESSION character_set_results = 'binary'
+2026-11-13 10:26:12.335570\tthread=22\tSHOW FUNCTION STATUS WHERE Db = 'normalization_1'
+2026-11-13 10:26:12.336192\tthread=22\tSHOW PROCEDURE STATUS WHERE Db = 'normalization_1'
+2026-11-13 10:26:12.336522\tthread=22\tSET SESSION character_set_results = 'utf8mb4'
+2026-11-13 10:26:12.336582\tthread=22\tUNLOCK TABLES
+2026-11-13 10:26:12.336623\tthread=22\tUNLOCK TABLES
+2026-11-13 10:26:24.820024\tthread=23\tselect @@version_comment limit 1
+2026-11-13 10:26:24.820177\tthread=23\tSELECT DATABASE()
+2026-11-13 10:26:24.820348\tthread=23\tSELECT r.report_id, DATE_FORMAT(r.report_date, '%Y-%m-%d') AS report_date,\n       c.customer_name, p.product_name, p.price, ri.quantity,\n       p.price * ri.quantity AS line_total\nFROM reports AS r\nJOIN customers AS c ON c.customer_id = r.customer_id\nJOIN report_items AS ri ON ri.report_id = r.report_id\nJOIN products AS p ON p.product_id = ri.product_id\nORDER BY r.report_id, p.product_id
+2026-11-13 10:26:24.820783\tthread=23\tSELECT 'archived rows = report items' AS check_name,\n       (SELECT COUNT(*) FROM sales_unnormalized_2_archived) AS expected,\n       (SELECT COUNT(*) FROM report_items) AS actual,\n       IF((SELECT COUNT(*) FROM sales_unnormalized_2_archived) =\n          (SELECT COUNT(*) FROM report_items), 'PASS', 'FAIL') AS result\nUNION ALL\nSELECT 'reports', 5, (SELECT COUNT(*) FROM reports),\n       IF((SELECT COUNT(*) FROM reports) = 5, 'PASS', 'FAIL')\nUNION ALL\nSELECT 'customers', 3, (SELECT COUNT(*) FROM customers),\n       IF((SELECT COUNT(*) FROM customers) = 3, 'PASS', 'FAIL')\nUNION ALL\nSELECT 'products', 4, (SELECT COUNT(*) FROM products),\n       IF((SELECT COUNT(*) FROM products) = 4, 'PASS', 'FAIL')\nUNION ALL\nSELECT 'total amount', 3609000.00,\n       (SELECT SUM(p.price * ri.quantity)\n        FROM report_items AS ri\n        JOIN products AS p ON p.product_id = ri.product_id),\n       IF((SELECT SUM(p.price * ri.quantity)\n           FROM report_items AS ri\n           JOIN products AS p ON p.product_id = ri.product_id) = 3609000.00,\n          'PASS', 'FAIL')\nUNION ALL\nSELECT 'customer 12 amount', 2925000.00,\n       (SELECT SUM(p.price * ri.quantity)\n        FROM reports AS r\n        JOIN report_items AS ri ON ri.report_id = r.report_id\n        JOIN products AS p ON p.product_id = ri.product_id\n        WHERE r.customer_id = 12),\n       IF((SELECT SUM(p.price * ri.quantity)\n           FROM reports AS r\n           JOIN report_items AS ri ON ri.report_id = r.report_id\n           JOIN products AS p ON p.product_id = ri.product_id\n           WHERE r.customer_id = 12) = 2925000.00,\n          'PASS', 'FAIL')\nUNION ALL\nSELECT 'orphan foreign keys', 0,\n       ((SELECT COUNT(*) FROM reports AS r LEFT JOIN customers AS c\n         ON c.customer_id = r.customer_id WHERE c.customer_id IS NULL) +\n        (SELECT COUNT(*) FROM report_items AS ri LEFT JOIN reports AS r\n         ON r.report_id = ri.report_id WHERE r.report_id IS NULL) +\n        (SELECT COUNT(*) FROM report_items AS ri LEFT JOIN products AS p\n         ON p.product_id = ri.product_id WHERE p.product_id IS NULL)),\n       IF(((SELECT COUNT(*) FROM reports AS r LEFT JOIN customers AS c\n            ON c.customer_id = r.customer_id WHERE c.customer_id IS NULL) +\n           (SELECT COUNT(*) FROM report_items AS ri LEFT JOIN reports AS r\n            ON r.report_id = ri.report_id WHERE r.report_id IS NULL) +\n           (SELECT COUNT(*) FROM report_items AS ri LEFT JOIN products AS p\n            ON p.product_id = ri.product_id WHERE p.product_id IS NULL)) = 0,\n          'PASS', 'FAIL')
+2026-11-13 10:27:10.732698\tthread=24\tselect @@version_comment limit 1
+2026-11-13 10:27:10.732836\tthread=24\tSET GLOBAL general_log = 'OFF'
