@@ -17,7 +17,7 @@
     - [Обеспечение качества функционирования компьютерных систем](/content//Courses/Ensuring_quality_computer_systems_functioning/)
     - [Поддержка и тестирование программных модулей](/content/Courses/SupportAndTesting_of_software_modules/)
     - [Операционные системы и среды](/content/Courses/OS_and_Environments/README.md)
-    - [Технология разработки и защиты БД](/content/Courses/Basics_database_design/)
+    - [Технология разработки и защиты БД](/content/Courses/Basics_database_design/README.md)
 
 ---
 
@@ -171,7 +171,7 @@ git config --global user.email "rosa@mail.ru"
     - Обновить **WSL 2.0** командой `wsl --update` или `wsl --update --web-download`
     - Установить **Ubuntu** `wsl --install`
         - Когда система предложит указать имя пользователя **UNIX**, надо указать `user` и **Enter**
-        - Пароль польователя user - `123` (при наборе пароля он никак не отображается, но всё равно набирается) и **Enter**. Повтори пароль и **Enter**
+        - Пароль польователя user - `1234` (при наборе пароля он никак не отображается, но всё равно набирается) и **Enter**. Повтори пароль и **Enter**
         - Перезагрузить компьютер
             - После перезагрузки найти **Ubuntu** можно из **Главного меню** и запустить её как обычное приложение **Windows**
             - Обновить **Ubuntu**: в терминале **Ubuntu** запустить команду `sudo apt list --upgradable -a && sudo apt update && sudo apt full-upgrade -y`
