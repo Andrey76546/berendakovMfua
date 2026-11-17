@@ -50,6 +50,19 @@ docker rm my-mysql 2>/dev/null
 docker volume rm mysql_data 2>/dev/null
 ```
 
+Удалите файлы логов и дампов от предыдущих заданий!
+
+Например так (имена файлов могут отличаться!):
+
+Получить все файлы в каталоге `my-mysql`
+```shell
+ls
+```
+и
+```shell
+rm general.log  index_dump_clean.sql  index_dump.sql  my_actions.log
+```
+
 > ⚠️ **Не используйте `docker volume prune -a`** — эта команда удаляет **все** неиспользуемые volumes на хосте, а не только `mysql_data`.
 
 ### 1.2. Создайте новый контейнер
@@ -80,6 +93,14 @@ docker run --name my-mysql \
 
 ```bash
 docker ps
+```
+Проверить, что лог БД включён:
+```shell
+docker exec -it my-mysql mysql -uroot -p123 -e "SHOW VARIABLES LIKE 'general_log'; SHOW VARIABLES LIKE 'slow_query_log'; SHOW VARIABLES LIKE 'log_output';"
+```
+Если  OFF то
+```shell
+docker exec -it my-mysql mysql -uroot -p123 -e "SET GLOBAL general_log = 'ON';"
 ```
 
 ### 1.3. Очистите лог перед началом работы
@@ -387,7 +408,6 @@ EXPLAIN ANALYZE SELECT * FROM orders WHERE amount > 1000;
 ```shell
 docker exec my-mysql ls -la /var/lib/mysql/general.log
 ```
-
 Файл должен иметь размер > 0 и принадлежать `mysql`.
 
 ### 11.2. Посмотреть последние строки
@@ -408,6 +428,10 @@ docker exec my-mysql cat /var/lib/mysql/general.log \
 Проверить:
 ```shell
 cat my_actions.log
+```
+или
+```shell
+bat my_actions.log
 ```
 
 В файле останутся **только ваши осмысленные SQL-команды** — без `Connect`, `Quit`, `SET NAMES`, `help_topic`, `time_zone`. Команды `SET GLOBAL` (если вы их выполняли) тоже попадут, но служебные `SET NAMES` и `SET autocommit` отфильтрованы.
