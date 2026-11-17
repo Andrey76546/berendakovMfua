@@ -39,7 +39,7 @@ CREATE TABLE `customers` (
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
-INSERT INTO `customers` VALUES (1,'Иван Иванов','ivan@example.com','Москва','2026-11-13 10:28:48'),(2,'Пётр Петров','petr@example.com','Санкт-Петербург','2026-11-13 10:28:48'),(3,'Мария Сидорова','maria@example.com','Москва','2026-11-13 10:28:48'),(4,'Алексей Смирнов','alex@example.com','Казань','2026-11-13 10:28:48'),(5,'Ольга Кузнецова','olga@example.com','Новосибирск','2026-11-13 10:28:48');
+INSERT INTO `customers` VALUES (1,'Иван Иванов','ivan@example.com','Москва','2026-11-17 08:06:15'),(2,'Пётр Петров','petr@example.com','Санкт-Петербург','2026-11-17 08:06:15'),(3,'Мария Сидорова','maria@example.com','Москва','2026-11-17 08:06:15'),(4,'Алексей Смирнов','alex@example.com','Казань','2026-11-17 08:06:15'),(5,'Ольга Кузнецова','olga@example.com','Новосибирск','2026-11-17 08:06:15');
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -57,7 +57,6 @@ CREATE TABLE `orders` (
   `amount` decimal(10,2) NOT NULL,
   `status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'new',
   PRIMARY KEY (`id`),
-  KEY `idx_amount` (`amount`),
   KEY `idx_order_date` (`order_date`),
   KEY `idx_status_amount` (`status`,`amount`),
   KEY `idx_customer_amount` (`customer_id`,`amount`),
@@ -84,4 +83,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-13 10:37:28
+-- Dump completed on 2026-11-17  8:22:09
