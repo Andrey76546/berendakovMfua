@@ -38,14 +38,28 @@ docker run -d -p 3000:8081 -v ollama:/root/.ollama -v open-webui:/app/backend/da
 
 или через другой порт:
 ```shell
-docker run -d -p 8081:8080 \
+docker run -d -p 8082:8080 \
   -v ollama:/root/.ollama \
   -v open-webui:/app/backend/data \
   --name open-webui \
   --restart always \
   ghcr.io/open-webui/open-webui:ollama
 ```
-[Открыть чат в браузере](http://localhost:8081)
+или
+```shell
+docker run -d -p 3000:8081 -v ollama:/root/.ollama -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:ollama
+```
+или
+```shell
+docker run -d -p 3000:8080 \
+  --name open-webui \
+  -v open-webui:/app/backend/data \
+  -e OLLAMA_BASE_URL=http://ollama:11434 \
+  --link ollama \
+  ghcr.io/open-webui/open-webui:main
+```
+
+[Открыть эту страницу http://localhost:81/](http://localhost:81/)
 
 Загрузить модель, например `llama3.2:1b`
 ```shell
@@ -55,5 +69,7 @@ docker exec -it open-webui ollama pull llama3.2:1b
 ```shell
 docker exec -it open-webui ollama list
 ```
+
+
 
 
