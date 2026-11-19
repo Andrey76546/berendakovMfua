@@ -7,14 +7,14 @@
 - > Перед созданием проекта убедитесь, что порт 8084 не занят другим приложением!
 - > Создание проекта лучше начать с "чистого листа", предварительно остановив и удалив все другие контейнеры и образы!
 
-### Вариант 1: Ollama+phi4 CLI (командный интерфейс)
+### 1. Ollama+phi4
 
 Получить ollama:
 ```shell
 docker run -d -v ollama_data:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 ```
 ```shell
-docker exec -it ollama ollama run llama3.2:1b
+docker exec -it ollama ollama run phi4
 ```
 выйти из командного режима нейросети:
 ```shell
@@ -27,7 +27,7 @@ docker exec -it ollama ollama run llama3.2:1b
 
 ---
 
-### 2. Open WebUI и Ollama (Web-интерфейс)
+### 2. Open WebUI и Ollama
 
 ```shell
 docker run -d -p 3000:8081 -v ollama:/root/.ollama -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:ollama
@@ -38,28 +38,14 @@ docker run -d -p 3000:8081 -v ollama:/root/.ollama -v open-webui:/app/backend/da
 
 или через другой порт:
 ```shell
-docker run -d -p 8082:8080 \
+docker run -d -p 8081:8080 \
   -v ollama:/root/.ollama \
   -v open-webui:/app/backend/data \
   --name open-webui \
   --restart always \
   ghcr.io/open-webui/open-webui:ollama
 ```
-или
-```shell
-docker run -d -p 3000:8081 -v ollama:/root/.ollama -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:ollama
-```
-или
-```shell
-docker run -d -p 3000:8080 \
-  --name open-webui \
-  -v open-webui:/app/backend/data \
-  -e OLLAMA_BASE_URL=http://ollama:11434 \
-  --link ollama \
-  ghcr.io/open-webui/open-webui:main
-```
-
-[Открыть эту страницу http://localhost:81/](http://localhost:81/)
+[Открыть чат в браузере](http://localhost:8081)
 
 Загрузить модель, например `llama3.2:1b`
 ```shell
@@ -69,7 +55,5 @@ docker exec -it open-webui ollama pull llama3.2:1b
 ```shell
 docker exec -it open-webui ollama list
 ```
-
-
 
 
