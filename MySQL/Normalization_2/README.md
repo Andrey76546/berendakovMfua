@@ -133,6 +133,18 @@ MySQL General Log не включался: изменение глобально
 2. [Таблицы 3NF и их содержимое](screenshots/02_normalized_tables.png) — список таблиц и данные `clients`, `products`, `sales`, `sale_items`.
 3. [Итоговая проверка](screenshots/03_final_verification.png) — количества, обе суммы, JOIN и отсутствие сиротских строк.
 
+### 11.1. Создание и заполнение исходной таблицы
+
+![Создание и заполнение исходной таблицы](screenshots/01_source_table.png)
+
+### 11.2. Нормализованные таблицы и их содержимое
+
+![Нормализованные таблицы и их содержимое](screenshots/02_normalized_tables.png)
+
+### 11.3. Итоговая проверка
+
+![Итоговая проверка количества записей, суммы и целостности данных](screenshots/03_final_verification.png)
+
 Снимки являются реальными захватами окон Git Bash с непосредственным выводом MySQL. При захвате оконный менеджер вывел Docker Desktop поверх правой части терминала; новые кадры не делались из-за строгого лимита. Контрольные значения видны слева, а полный неперекрытый текст сохранён в каталоге `evidence/`. Команды, выведенные в терминалы, сохранены в [scripts/screenshot_01_source.sh](scripts/screenshot_01_source.sh), [scripts/screenshot_02_normalized.sh](scripts/screenshot_02_normalized.sh) и [scripts/screenshot_03_verification.sh](scripts/screenshot_03_verification.sh).
 
 ## 12. Обнаруженные расхождения в инструкции
