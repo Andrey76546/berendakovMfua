@@ -1,0 +1,10 @@
+VS Code:
+1.146.0
+69047191fc427f2f92828279aae1d90d8eeda7ab
+x64
+Git Bash:
+GNU bash, version 5.3.15(2)-release (x86_64-pc-cygwin)
+Docker:
+client=29.7.2 server=29.7.2
+MySQL:
+8.4.11

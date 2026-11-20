@@ -1,0 +1,220 @@
+--------------
+-- Этап 2. Все опасные действия выполняются на тестовой копии и откатываются.
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+CREATE TABLE sales_unnormalized_anomaly_demo LIKE sales_unnormalized
+--------------
+
+Query OK, 0 rows affected (0.05 sec)
+
+--------------
+INSERT INTO sales_unnormalized_anomaly_demo
+SELECT * FROM sales_unnormalized
+--------------
+
+Query OK, 10 rows affected (0.01 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+--------------
+SELECT 'UPDATE ANOMALY' AS demonstration
+--------------
+
++----------------+
+| demonstration  |
++----------------+
+| UPDATE ANOMALY |
++----------------+
+1 row in set (0.00 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+UPDATE sales_unnormalized_anomaly_demo
+SET client_city = 'Тверь'
+WHERE client_id = 101
+  AND sale_id = 5001
+  AND product_id = 201
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT sale_id, product_id, client_id, client_name, client_city
+FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 101
+ORDER BY sale_id, product_id
+--------------
+
++---------+------------+-----------+-----------------------+--------------+
+| sale_id | product_id | client_id | client_name           | client_city  |
++---------+------------+-----------+-----------------------+--------------+
+|    5001 |        201 |       101 | Иванов Иван           | Тверь        |
+|    5001 |        202 |       101 | Иванов Иван           | Москва       |
+|    5003 |        205 |       101 | Иванов Иван           | Москва       |
++---------+------------+-----------+-----------------------+--------------+
+3 rows in set (0.00 sec)
+
+--------------
+SELECT COUNT(DISTINCT client_city) AS conflicting_cities_for_one_client
+FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 101
+--------------
+
++-----------------------------------+
+| conflicting_cities_for_one_client |
++-----------------------------------+
+|                                 2 |
++-----------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+SELECT 'INSERT ANOMALY' AS demonstration
+--------------
+
++----------------+
+| demonstration  |
++----------------+
+| INSERT ANOMALY |
++----------------+
+1 row in set (0.00 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+INSERT INTO sales_unnormalized_anomaly_demo
+    (client_id, client_name, client_city)
+VALUES
+    (104, 'Орлов Олег', 'Тула')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+SELECT sale_id, sale_date, client_id, client_name, client_city,
+       product_id, product_name, unit_price, quantity
+FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 104
+--------------
+
++---------+-----------+-----------+---------------------+-------------+------------+--------------+------------+----------+
+| sale_id | sale_date | client_id | client_name         | client_city | product_id | product_name | unit_price | quantity |
++---------+-----------+-----------+---------------------+-------------+------------+--------------+------------+----------+
+|    NULL | NULL      |       104 | Орлов Олег          | Тула        |       NULL | NULL         |       NULL |     NULL |
++---------+-----------+-----------+---------------------+-------------+------------+--------------+------------+----------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT COUNT(*) AS malformed_rows_required_for_client_without_sale
+FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 104
+  AND sale_id IS NULL
+  AND product_id IS NULL
+--------------
+
++-------------------------------------------------+
+| malformed_rows_required_for_client_without_sale |
++-------------------------------------------------+
+|                                               1 |
++-------------------------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.01 sec)
+
+--------------
+SELECT 'DELETE ANOMALY' AS demonstration
+--------------
+
++----------------+
+| demonstration  |
++----------------+
+| DELETE ANOMALY |
++----------------+
+1 row in set (0.00 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+SELECT COUNT(*) AS client_102_rows_before_delete
+FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 102
+--------------
+
++-------------------------------+
+| client_102_rows_before_delete |
++-------------------------------+
+|                             3 |
++-------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+DELETE FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 102
+--------------
+
+Query OK, 3 rows affected (0.00 sec)
+
+--------------
+SELECT COUNT(*) AS client_102_rows_after_delete
+FROM sales_unnormalized_anomaly_demo
+WHERE client_id = 102
+--------------
+
++------------------------------+
+| client_102_rows_after_delete |
++------------------------------+
+|                            0 |
++------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+SELECT COUNT(*) AS source_rows_after_demonstrations,
+       SUM(unit_price * quantity) AS source_total_after_demonstrations
+FROM sales_unnormalized
+--------------
+
++----------------------------------+-----------------------------------+
+| source_rows_after_demonstrations | source_total_after_demonstrations |
++----------------------------------+-----------------------------------+
+|                               10 |                          80000.00 |
++----------------------------------+-----------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+DROP TABLE sales_unnormalized_anomaly_demo
+--------------
+
+Query OK, 0 rows affected (0.05 sec)
+
+Bye

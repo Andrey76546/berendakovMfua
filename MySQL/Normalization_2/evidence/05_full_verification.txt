@@ -1,0 +1,541 @@
+--------------
+-- Этап 5. Полная проверка данных, ограничений и устранения аномалий.
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+SELECT 'COUNTS' AS verification
+--------------
+
++--------------+
+| verification |
++--------------+
+| COUNTS       |
++--------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT
+    (SELECT COUNT(*) FROM sales_unnormalized) AS source_rows,
+    (SELECT COUNT(*) FROM clients) AS clients,
+    (SELECT COUNT(*) FROM products) AS products,
+    (SELECT COUNT(*) FROM sales) AS sales,
+    (SELECT COUNT(*) FROM sale_items) AS sale_items
+--------------
+
++-------------+---------+----------+-------+------------+
+| source_rows | clients | products | sales | sale_items |
++-------------+---------+----------+-------+------------+
+|          10 |       3 |        5 |     6 |         10 |
++-------------+---------+----------+-------+------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT 'ALL CLIENTS' AS verification
+--------------
+
++--------------+
+| verification |
++--------------+
+| ALL CLIENTS  |
++--------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT * FROM clients ORDER BY client_id
+--------------
+
++-----------+-------------------------------+-------------------------------+
+| client_id | client_name                   | client_city                   |
++-----------+-------------------------------+-------------------------------+
+|       101 | Иванов Иван                   | Москва                        |
+|       102 | Петрова Мария                 | Санкт-Петербург               |
+|       103 | Сидоров Алексей               | Казань                        |
++-----------+-------------------------------+-------------------------------+
+3 rows in set (0.00 sec)
+
+--------------
+SELECT 'ALL PRODUCTS' AS verification
+--------------
+
++--------------+
+| verification |
++--------------+
+| ALL PRODUCTS |
++--------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT * FROM products ORDER BY product_id
+--------------
+
++------------+----------------------+------------+
+| product_id | product_name         | unit_price |
++------------+----------------------+------------+
+|        201 | Монитор              |   15000.00 |
+|        202 | Клавиатура           |    2000.00 |
+|        203 | Мышь                 |    1000.00 |
+|        204 | Наушники             |    3500.00 |
+|        205 | Колонки              |    2500.00 |
++------------+----------------------+------------+
+5 rows in set (0.00 sec)
+
+--------------
+SELECT 'ALL SALES' AS verification
+--------------
+
++--------------+
+| verification |
++--------------+
+| ALL SALES    |
++--------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT * FROM sales ORDER BY sale_id
+--------------
+
++---------+------------+-----------+
+| sale_id | sale_date  | client_id |
++---------+------------+-----------+
+|    5001 | 2026-11-01 |       101 |
+|    5002 | 2026-11-02 |       102 |
+|    5003 | 2026-11-03 |       101 |
+|    5004 | 2026-11-04 |       103 |
+|    5005 | 2026-11-05 |       102 |
+|    5006 | 2026-11-06 |       103 |
++---------+------------+-----------+
+6 rows in set (0.00 sec)
+
+--------------
+SELECT 'ALL SALE ITEMS' AS verification
+--------------
+
++----------------+
+| verification   |
++----------------+
+| ALL SALE ITEMS |
++----------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT * FROM sale_items ORDER BY sale_id, product_id
+--------------
+
++---------+------------+----------+
+| sale_id | product_id | quantity |
++---------+------------+----------+
+|    5001 |        201 |        2 |
+|    5001 |        202 |        1 |
+|    5002 |        203 |        3 |
+|    5002 |        204 |        1 |
+|    5003 |        205 |        2 |
+|    5004 |        202 |        5 |
+|    5004 |        203 |        2 |
+|    5005 |        201 |        1 |
+|    5006 |        204 |        2 |
+|    5006 |        205 |        1 |
++---------+------------+----------+
+10 rows in set (0.00 sec)
+
+--------------
+SELECT 'PRIMARY, FOREIGN AND CHECK CONSTRAINTS' AS verification
+--------------
+
++----------------------------------------+
+| verification                           |
++----------------------------------------+
+| PRIMARY, FOREIGN AND CHECK CONSTRAINTS |
++----------------------------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT table_name, constraint_name, constraint_type
+FROM information_schema.table_constraints
+WHERE constraint_schema = 'sales_norm_2'
+  AND table_name IN ('clients', 'products', 'sales', 'sale_items')
+ORDER BY table_name, constraint_type, constraint_name
+--------------
+
++------------+-------------------------+-----------------+
+| TABLE_NAME | CONSTRAINT_NAME         | CONSTRAINT_TYPE |
++------------+-------------------------+-----------------+
+| clients    | PRIMARY                 | PRIMARY KEY     |
+| products   | chk_products_unit_price | CHECK           |
+| products   | PRIMARY                 | PRIMARY KEY     |
+| sale_items | chk_sale_items_quantity | CHECK           |
+| sale_items | fk_sale_items_product   | FOREIGN KEY     |
+| sale_items | fk_sale_items_sale      | FOREIGN KEY     |
+| sale_items | PRIMARY                 | PRIMARY KEY     |
+| sales      | fk_sales_client         | FOREIGN KEY     |
+| sales      | PRIMARY                 | PRIMARY KEY     |
++------------+-------------------------+-----------------+
+9 rows in set (0.01 sec)
+
+--------------
+SELECT 'FOREIGN KEY LINKS' AS verification
+--------------
+
++-------------------+
+| verification      |
++-------------------+
+| FOREIGN KEY LINKS |
++-------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT table_name, column_name, constraint_name,
+       referenced_table_name, referenced_column_name
+FROM information_schema.key_column_usage
+WHERE constraint_schema = 'sales_norm_2'
+  AND referenced_table_name IS NOT NULL
+ORDER BY table_name, constraint_name, ordinal_position
+--------------
+
++------------+-------------+-----------------------+-----------------------+------------------------+
+| TABLE_NAME | COLUMN_NAME | CONSTRAINT_NAME       | REFERENCED_TABLE_NAME | REFERENCED_COLUMN_NAME |
++------------+-------------+-----------------------+-----------------------+------------------------+
+| sale_items | product_id  | fk_sale_items_product | products              | product_id             |
+| sale_items | sale_id     | fk_sale_items_sale    | sales                 | sale_id                |
+| sales      | client_id   | fk_sales_client       | clients               | client_id              |
++------------+-------------+-----------------------+-----------------------+------------------------+
+3 rows in set (0.00 sec)
+
+--------------
+SELECT 'TOTALS' AS verification
+--------------
+
++--------------+
+| verification |
++--------------+
+| TOTALS       |
++--------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT
+    (SELECT SUM(unit_price * quantity)
+       FROM sales_unnormalized) AS source_total,
+    (SELECT SUM(p.unit_price * si.quantity)
+       FROM sale_items AS si
+       JOIN products AS p ON p.product_id = si.product_id) AS normalized_total
+--------------
+
++--------------+------------------+
+| source_total | normalized_total |
++--------------+------------------+
+|     80000.00 |         80000.00 |
++--------------+------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT 'RECONSTRUCTED SOURCE ROWS' AS verification
+--------------
+
++---------------------------+
+| verification              |
++---------------------------+
+| RECONSTRUCTED SOURCE ROWS |
++---------------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT s.sale_id, s.sale_date,
+       c.client_id, c.client_name, c.client_city,
+       p.product_id, p.product_name, p.unit_price,
+       si.quantity
+FROM sales AS s
+JOIN clients AS c ON c.client_id = s.client_id
+JOIN sale_items AS si ON si.sale_id = s.sale_id
+JOIN products AS p ON p.product_id = si.product_id
+ORDER BY s.sale_id, p.product_id
+--------------
+
++---------+------------+-----------+-------------------------------+-------------------------------+------------+----------------------+------------+----------+
+| sale_id | sale_date  | client_id | client_name                   | client_city                   | product_id | product_name         | unit_price | quantity |
++---------+------------+-----------+-------------------------------+-------------------------------+------------+----------------------+------------+----------+
+|    5001 | 2026-11-01 |       101 | Иванов Иван                   | Москва                        |        201 | Монитор              |   15000.00 |        2 |
+|    5001 | 2026-11-01 |       101 | Иванов Иван                   | Москва                        |        202 | Клавиатура           |    2000.00 |        1 |
+|    5002 | 2026-11-02 |       102 | Петрова Мария                 | Санкт-Петербург               |        203 | Мышь                 |    1000.00 |        3 |
+|    5002 | 2026-11-02 |       102 | Петрова Мария                 | Санкт-Петербург               |        204 | Наушники             |    3500.00 |        1 |
+|    5003 | 2026-11-03 |       101 | Иванов Иван                   | Москва                        |        205 | Колонки              |    2500.00 |        2 |
+|    5004 | 2026-11-04 |       103 | Сидоров Алексей               | Казань                        |        202 | Клавиатура           |    2000.00 |        5 |
+|    5004 | 2026-11-04 |       103 | Сидоров Алексей               | Казань                        |        203 | Мышь                 |    1000.00 |        2 |
+|    5005 | 2026-11-05 |       102 | Петрова Мария                 | Санкт-Петербург               |        201 | Монитор              |   15000.00 |        1 |
+|    5006 | 2026-11-06 |       103 | Сидоров Алексей               | Казань                        |        204 | Наушники             |    3500.00 |        2 |
+|    5006 | 2026-11-06 |       103 | Сидоров Алексей               | Казань                        |        205 | Колонки              |    2500.00 |        1 |
++---------+------------+-----------+-------------------------------+-------------------------------+------------+----------------------+------------+----------+
+10 rows in set (0.00 sec)
+
+--------------
+SELECT 'ROW-BY-ROW EQUALITY' AS verification
+--------------
+
++---------------------+
+| verification        |
++---------------------+
+| ROW-BY-ROW EQUALITY |
++---------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT COUNT(*) AS reconstructed_rows,
+       SUM(CASE
+             WHEN s.sale_date = u.sale_date
+              AND c.client_id = u.client_id
+              AND c.client_name = u.client_name
+              AND c.client_city = u.client_city
+              AND p.product_name = u.product_name
+              AND p.unit_price = u.unit_price
+              AND si.quantity = u.quantity
+             THEN 0 ELSE 1
+           END) AS mismatched_rows
+FROM sales_unnormalized AS u
+JOIN sales AS s ON s.sale_id = u.sale_id
+JOIN clients AS c ON c.client_id = s.client_id
+JOIN sale_items AS si
+  ON si.sale_id = u.sale_id AND si.product_id = u.product_id
+JOIN products AS p ON p.product_id = si.product_id
+--------------
+
++--------------------+-----------------+
+| reconstructed_rows | mismatched_rows |
++--------------------+-----------------+
+|                 10 |               0 |
++--------------------+-----------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT 'ORPHAN CHECKS' AS verification
+--------------
+
++---------------+
+| verification  |
++---------------+
+| ORPHAN CHECKS |
++---------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT
+    (SELECT COUNT(*)
+       FROM sales AS s
+       LEFT JOIN clients AS c ON c.client_id = s.client_id
+      WHERE c.client_id IS NULL) AS sales_without_client,
+    (SELECT COUNT(*)
+       FROM sale_items AS si
+       LEFT JOIN sales AS s ON s.sale_id = si.sale_id
+      WHERE s.sale_id IS NULL) AS items_without_sale,
+    (SELECT COUNT(*)
+       FROM sale_items AS si
+       LEFT JOIN products AS p ON p.product_id = si.product_id
+      WHERE p.product_id IS NULL) AS items_without_product
+--------------
+
++----------------------+--------------------+-----------------------+
+| sales_without_client | items_without_sale | items_without_product |
++----------------------+--------------------+-----------------------+
+|                    0 |                  0 |                     0 |
++----------------------+--------------------+-----------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT 'UPDATE WITHOUT ANOMALY' AS verification
+--------------
+
++------------------------+
+| verification           |
++------------------------+
+| UPDATE WITHOUT ANOMALY |
++------------------------+
+1 row in set (0.00 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+UPDATE clients SET client_city = 'Тверь' WHERE client_id = 101
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT ROW_COUNT() AS rows_changed_in_one_place
+--------------
+
++---------------------------+
+| rows_changed_in_one_place |
++---------------------------+
+|                         1 |
++---------------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT client_id, client_name, client_city
+FROM clients WHERE client_id = 101
+--------------
+
++-----------+-----------------------+-------------+
+| client_id | client_name           | client_city |
++-----------+-----------------------+-------------+
+|       101 | Иванов Иван           | Тверь       |
++-----------+-----------------------+-------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT s.sale_id, p.product_id, c.client_city
+FROM sales AS s
+JOIN clients AS c ON c.client_id = s.client_id
+JOIN sale_items AS si ON si.sale_id = s.sale_id
+JOIN products AS p ON p.product_id = si.product_id
+WHERE c.client_id = 101
+ORDER BY s.sale_id, p.product_id
+--------------
+
++---------+------------+-------------+
+| sale_id | product_id | client_city |
++---------+------------+-------------+
+|    5001 |        201 | Тверь       |
+|    5001 |        202 | Тверь       |
+|    5003 |        205 | Тверь       |
++---------+------------+-------------+
+3 rows in set (0.00 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+SELECT 'INSERT WITHOUT ANOMALY' AS verification
+--------------
+
++------------------------+
+| verification           |
++------------------------+
+| INSERT WITHOUT ANOMALY |
++------------------------+
+1 row in set (0.00 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+INSERT INTO clients (client_id, client_name, client_city)
+VALUES (104, 'Орлов Олег', 'Тула')
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+SELECT c.client_id, c.client_name, c.client_city,
+       COUNT(s.sale_id) AS sale_count
+FROM clients AS c
+LEFT JOIN sales AS s ON s.client_id = c.client_id
+WHERE c.client_id = 104
+GROUP BY c.client_id, c.client_name, c.client_city
+--------------
+
++-----------+---------------------+-------------+------------+
+| client_id | client_name         | client_city | sale_count |
++-----------+---------------------+-------------+------------+
+|       104 | Орлов Олег          | Тула        |          0 |
++-----------+---------------------+-------------+------------+
+1 row in set (0.00 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.01 sec)
+
+--------------
+SELECT 'DELETE WITHOUT ANOMALY' AS verification
+--------------
+
++------------------------+
+| verification           |
++------------------------+
+| DELETE WITHOUT ANOMALY |
++------------------------+
+1 row in set (0.00 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+DELETE FROM sale_items WHERE sale_id = 5005
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+DELETE FROM sales WHERE sale_id = 5005
+--------------
+
+Query OK, 1 row affected (0.00 sec)
+
+--------------
+SELECT c.client_id, c.client_name, c.client_city,
+       COUNT(s.sale_id) AS remaining_sales
+FROM clients AS c
+LEFT JOIN sales AS s ON s.client_id = c.client_id
+WHERE c.client_id = 102
+GROUP BY c.client_id, c.client_name, c.client_city
+--------------
+
++-----------+---------------------------+-------------------------------+-----------------+
+| client_id | client_name               | client_city                   | remaining_sales |
++-----------+---------------------------+-------------------------------+-----------------+
+|       102 | Петрова Мария             | Санкт-Петербург               |               1 |
++-----------+---------------------------+-------------------------------+-----------------+
+1 row in set (0.00 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.00 sec)
+
+--------------
+SELECT 'FINAL STATE AFTER ROLLBACKS' AS verification
+--------------
+
++-----------------------------+
+| verification                |
++-----------------------------+
+| FINAL STATE AFTER ROLLBACKS |
++-----------------------------+
+1 row in set (0.00 sec)
+
+--------------
+SELECT
+    (SELECT COUNT(*) FROM clients) AS clients,
+    (SELECT COUNT(*) FROM products) AS products,
+    (SELECT COUNT(*) FROM sales) AS sales,
+    (SELECT COUNT(*) FROM sale_items) AS sale_items,
+    (SELECT SUM(p.unit_price * si.quantity)
+       FROM sale_items AS si
+       JOIN products AS p ON p.product_id = si.product_id) AS normalized_total
+--------------
+
++---------+----------+-------+------------+------------------+
+| clients | products | sales | sale_items | normalized_total |
++---------+----------+-------+------------+------------------+
+|       3 |        5 |     6 |         10 |         80000.00 |
++---------+----------+-------+------------+------------------+
+1 row in set (0.01 sec)
+
+Bye

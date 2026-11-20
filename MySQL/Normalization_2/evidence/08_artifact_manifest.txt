@@ -1,0 +1,11 @@
+=== RUNTIME ===
+Docker client=29.7.2 server=29.7.2
+container=/normalization-2-mysql image=mysql:8.4 status=running network=none ports={}
+mysql=8.4.11 database=sales_norm_2 charset=utf8mb4 collation=utf8mb4_unicode_ci
+=== ARTIFACTS ===
+dumps\after_normalization.sql bytes=7596 sha256=e3afeeda24844e75ad894c2b713b2e8bcf5fc9ec8617304fcc26558b98f29c2c
+dumps\before_normalization.sql bytes=3576 sha256=d2ee8251e5a447d1e6f7f2dbe783b8e69c16955f2e4f51ae636864674b9961b5
+logs\mysql_actions.log bytes=37983 sha256=3e2170d88105bba752870926d1e3fc024e62e8ebdc003c7e63ea3933057d37d6
+screenshots\01_source_table.png bytes=215201 sha256=4874e4b93af4507246604fd8fc7a13402804cc254acbcbb8f776b24f88f16290
+screenshots\02_normalized_tables.png bytes=214886 sha256=05403ced5d48f6b79940af59e5efded909bec60c569683697fc36ec0b982ed3e
+screenshots\03_final_verification.png bytes=194292 sha256=7268a024eba5412d553fed24961a9b983dfdd4a86900dc404592a5ff38c608b8

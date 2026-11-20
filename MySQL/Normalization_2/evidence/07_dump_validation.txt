@@ -1,0 +1,8 @@
+before_file=before_normalization.sql
+before_bytes=3576
+before_create_tables=1
+before_insert_statements=1
+after_file=after_normalization.sql
+after_bytes=7596
+after_create_tables=5
+after_insert_statements=5
