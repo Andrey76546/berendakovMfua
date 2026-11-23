@@ -55,6 +55,71 @@ docker exec -it ollama ollama run phi4
 /bye
 ```
 
+[Если у вас нет ВПН, скачайте модель вручную](https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/blob/main/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf)
+
+Скопируйте скачанный файл в папку `/tmp` внутри контейнера `ollama`:
+```shell
+# Если файл в ~/Downloads (английская версия):
+docker cp ~/Downloads/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf ollama:/tmp/light-model.gguf
+```
+```shell
+# ИЛИ если файл в ~/Загрузки (русская версия):
+docker cp ~/Загрузки/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf ollama:/tmp/light-model.gguf
+```
+⚠️ *Замените имя файла на то, которое вы фактически скачали.*
+
+Войдите в контейнер:
+```shell
+docker exec -it ollama /bin/bash
+```
+Создайте файл Modelfile:
+```shell
+cat > /tmp/Modelfile << 'EOF'
+FROM /tmp/light-model.gguf
+
+SYSTEM """You are Phi-4-mini, a helpful AI assistant."""
+
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER num_ctx 16384
+
+TEMPLATE """<|system|>
+{{ .System }}<|end|>
+<|user|>
+{{ .Prompt }}<|end|>
+<|assistant|>
+{{ .Response }}<|end|>"""
+EOF
+```
+Создайте модель в Ollama:
+```shell
+ollama create phi4-mini-custom -f /tmp/Modelfile
+```
+Проверка доступных моделей:
+```shell
+docker exec -it ollama ollama list
+```
+Запустите модель
+```shell
+docker exec -it ollama ollama run phi4-mini-custom
+```
+Появится чат диалога с нейросетью, в котором вы зададите вопрос:
+```text
+What can you do?
+```
+или по-русски:
+```
+Ты умеешь по-русски?
+```
+выйти из диалога:
+```shell
+/exit
+```
+и
+```shell
+/bye
+```
+
 ---
 
 ### Вариант 2. Ollama + Open WebUI
@@ -195,6 +260,8 @@ docker run -d \
 Подождите 20–30 секунд, чтобы база данных внутри контейнера успела полностью проинициализироваться.
 
 [Снова перейдите по адресу: http://localhost:81](http://localhost:81)
+
+**Результат оформить в виде отдельного `README.md` со скриншотами результатов ваших действий и прислать ссылку преподавателю.**
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
 
