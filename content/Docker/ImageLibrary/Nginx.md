@@ -50,8 +50,7 @@ docker container prune $(docker ps -q)
 ```shell
 docker ps -a
 ```
-
-![Тут нужен скриншот вывода]()
+![Тут нужен скриншот вывода](/content/Docker/Dockerfile/img/)
 
 - Опционально можно удалить ненужные образы. Показать текущие образы:
 ```shell
@@ -96,7 +95,7 @@ docker run -d --name my-nginx -p 80:80 nginx
 docker ps -a
 ```
 
-![Тут нужен скриншот]()
+![Тут нужен скриншот](/content/Docker/ImageLibrary/img/12.png)
 
 Показать загруженный на ваш компьютер образ
 ```shell
@@ -320,6 +319,11 @@ cmatrix
 > Выйти из `cmatrix` можно по **Q**
 
 ```shell
+cacafire
+```> Выйти из `cmatrix` можно по **Ctrl+C**
+
+
+```shell
 hollywood
 ```
 ![Скрин вывода hollywood]()bash
@@ -352,7 +356,7 @@ micro /usr/share/nginx/html/index.html
 </body>
 </html>
 ```
-отредайтируйте и сохраните по `Ctrl+S` и выйти из режима редактирования по `Ctrl+Q`
+отредайтируйте и сохраните по `Ctrl+S` и выйти из режима редактирования по `Ctrl+Q` или `F4`
 
 [Проверить изменения на открытой странице >>](http://localhost/)
 

@@ -1,5 +1,7 @@
 ## Шпаргалка по Docker
 
+***
+
 ### Установка
 
 **Windows 10–11**
@@ -26,15 +28,19 @@ brew install --cask docker
 
 ### Основные команды
 
-#### Состояние и информация
+#### Информация и состояние
 
 Версия Docker:
 ```shell
-docker version
+docker --version
 ```
 или кратко:
 ```shell
-docker --version
+docker version
+```
+Подробная информация по Docker:
+```shell
+docker info
 ```
 Мониторинг ресурсов в реальном времени:
 ```shell
@@ -46,13 +52,17 @@ docker stats
 ```shell
 docker ps -a
 ```
+Показать только работающие контейнеры:
+```shell
+docker ps
+```
+Простая и быстрая демонстрация работы Docker:
+```shell
+docker run hello-world
+```
 Показать все имеющиеся Docker-образы:
 ```shell
 docker images
-```
-Быстрая демонстрация работы Docker:
-```shell
-docker run hello-world
 ```
 Сводка по диску Docker:
 ```shell
@@ -70,21 +80,6 @@ docker system df -v
 ```shell
 docker buildx du
 ```
-Очистить все ненужные тома:
-```shell
-docker volume prune -a
-```
-Удаление всех остановленных контейнеров
-```shell
-docker container prune
-```
-```shell
-docker image prune -a
-```
-Очистить кэш всех сборок:
-```shell
-docker builder prune -a
-```
 
 ---
 
@@ -94,35 +89,25 @@ docker builder prune -a
 ```shell
 docker images
 ```
-Показать детальную информацию по выбранному образу:
+Показать детальную информацию по выбранному образу на примере **hello-world**:
 ```shell
 docker image inspect hello-world
 ```
-Найти указанный образ в Docker Hub:
+Найти указанный образ в **Docker Hub** на примере **Nginx**:
 ```shell
 docker search nginx
 ```
-Получить информацию по указанному образу:
+Получить информацию по указанному образу на примере **Nginx**:
 ```shell
 docker inspect nginx
 ```
-Скачать указанный образ:
+Скачать указанный образ на примере **Nginx**:
 ```shell
 docker pull nginx
 ```
 Собрать образ из Dockerfile в текущей директории (`.`) и дать ему тег `my-app`:
 ```shell
 docker build -t my-app .
-```
-Сканирование контейнера на наличие известных уязвимостей:
-```shell
-docker scout cves <image_name>
-```
-> ⚠️ `docker scan` — устаревшая команда. Используйте `docker scout` или `trivy`.
-
-Показать лог контейнера:
-```shell
-docker logs <container_id>
 ```
 Удалить указанный образ по имени:
 ```shell
@@ -136,7 +121,6 @@ docker rmi имя_образа
 ```shell
 docker rmi id_образа
 ```
-> ⚠️ `docker rm` удаляет **контейнеры**, а не образы. Для образов — `docker rmi`.
 
 Удалить только промежуточные (dangling) образы без тегов:
 ```shell
@@ -191,11 +175,36 @@ docker exec -it my-apache bash
 ```shell
 docker exec my-apache ls -la
 ```
+Скопировать файл из контейнера на хост (и наоборот):
+```shell
+docker cp my-container:/path/to/file ./local-file
+docker cp ./local-file my-container:/path/to/file
+```
+Сканирование контейнера на наличие известных уязвимостей:
+```shell
+docker scout cves <image_name>
+```
+> ⚠️ `docker scan` — устаревшая команда. Используйте `docker scout` или `trivy`.
+
+Показать лог контейнера:
+```shell
+docker logs <container_id>
+```
+Удалить указанные контейнер по его ID:
+```shell
+docker rm id_контейнера
+```
+Удалить указанные контейнер по его имени:
+```shell
+docker rm name_контейнера
+```
+> ⚠️ `docker rm` удаляет **контейнеры**, а не образы. Для образов — `docker rmi`.
+
 Удалить все остановленные или не запущенные (Exited, Created) контейнеры:
 ```shell
 docker container prune
 ```
-> **Prune** — удаляйте ненужные контейнеры, чтобы не засорять ваш Docker!
+> **Prune** — удаляйте только ненужные контейнеры, чтобы не засорять ваш Docker!
 
 Удалить все контейнеры (включая запущенные — принудительно):
 ```shell
@@ -204,11 +213,6 @@ docker rm -f $(docker ps -aq)
 Удалить только остановленные контейнеры:
 ```shell
 docker rm $(docker ps -a -f status=exited -q)
-```
-Скопировать файл из контейнера на хост (и наоборот):
-```shell
-docker cp my-container:/path/to/file ./local-file
-docker cp ./local-file my-container:/path/to/file
 ```
 
 ---
@@ -239,11 +243,6 @@ docker network disconnect my-net my-container
 ```shell
 docker network ls
 ```
-
----
-
-#### Порты
-
 Проверка указанного порта.
 
 **Linux:**
@@ -265,7 +264,7 @@ docker port <container_name>
 
 ---
 
-#### Тома
+#### Тома (volumes)
 
 Показать все тома:
 ```shell
@@ -329,11 +328,11 @@ docker compose exec <service> <command>
 
 ### DOCKER HUB
 
-Найти указанный образ:
+Найти указанный образ на примере **Nginx**:
 ```shell
 docker search nginx
 ```
-Скачать указанный образ:
+Скачать указанный образ на примере **Nginx**:
 ```shell
 docker pull nginx
 ```
@@ -341,7 +340,7 @@ docker pull nginx
 ```shell
 docker pull docker.io/library/nginx:latest
 ```
-Получить информацию по указанному образу:
+Получить информацию по указанному образу на примере **Nginx**:
 ```shell
 docker inspect nginx
 ```
@@ -353,15 +352,15 @@ docker pull postgres
 ```shell
 docker pull redis
 ```
-Скачать образ **nginx на базе Alpine**:
+Скачать образ **nginx** на базе **Alpine**:
 ```shell
 docker pull nginx:alpine
 ```
-Скачать образ **чистого Alpine Linux**:
+Скачать образ "чистого" **Alpine Linux**:
 ```shell
 docker pull alpine
 ```
-Войти в Docker Hub:
+Войти в **Docker Hub**:
 ```shell
 docker login
 ```
@@ -378,9 +377,26 @@ docker push username/my-app:1.0
 docker logout
 ```
 
----
+#### Обслуживание Docker
 
-### Очистка (Prune)
+Очистить все ненужные тома:
+```shell
+docker volume prune -a
+```
+Удаление всех остановленных контейнеров
+```shell
+docker container prune
+```
+Удаление всех образов
+```shell
+docker image prune -a
+```
+Очистить кэш всех сборок:
+```shell
+docker builder prune -a
+```
+
+Очистка (Prune)
 
 | Команда | Что удаляет |
 |---------|-------------|
