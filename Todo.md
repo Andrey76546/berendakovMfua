@@ -23,16 +23,16 @@
 * [x] Bash-программирование
 * [x] Скрипт синхронизации репозиториев
 * [x] Git - основы (Git-bash) + командная работа
-* [x] Markdown
-* [x] Mermaid
-* [x] Static Website on Github Pages - html+css+js
+* [x] Markdown + Mermaid
+* [x] Deploy Static Website on Github Pages (html+css+js)
 * [x] WSL 2.0 (Ubuntu)
 * [x] Docker - загрузка и установка + основы создания конейнеров и управления
 * [x] Docker готовые образы
 * [x] Dockerfile
 * [x] Docker Compose
 * [x] CI
-* [x] CI/CD
+* [x] CI/CD (Delivery)
+* [x] CI/CD (Deploy)
 * [.] БД на основе SQL
 * [ ] Virtual Box (Alt Education 11)
 * [ ] Контроллер домена и групповые политики на Alt Education 11
@@ -71,6 +71,12 @@
 - Markdown + Mermaid
 - Git
     - Просмотр видеороликов по Git
+    - Лабораторные работы:
+        - Красивый README (Markdown+Mermaid) на свободную тему
+        - Командная работа по созданию красивого README (Markdown+Mermaid) на свободную тему
+        - Командная работа через Pull Request
+- GitHub Pages
+    - Деплой статического сайта HTML+CSS+JS на GitHub Pages
 - Знакомство с Docker:
     - Самостоятельно составить README.md с историей и описанием Docker: определение, история появления и развития, современное состояние. Dockerhub и готовые образы. Dockerfile и Docker Compose
     - Просмотр видеороликов по Docker
