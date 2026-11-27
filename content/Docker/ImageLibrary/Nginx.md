@@ -50,7 +50,7 @@ docker container prune $(docker ps -q)
 ```shell
 docker ps -a
 ```
-![Тут нужен скриншот вывода](/content/Docker/Dockerfile/img/)
+![Тут нужен скриншот вывода](/content/img/)
 
 - Опционально можно удалить ненужные образы. Показать текущие образы:
 ```shell
@@ -78,40 +78,39 @@ docker rmi $(docker images -q)
 ```shell
 docker search nginx
 ```
-
 ![Скрин вывода поиска по слову nginx](img/docker_screen.png)
 
 Так же готовый образ можно искать в **Docker Desktop**
 
 Получить, создать и запустить Nginx
 ```shell
-docker run -d --name my-nginx -p 80:80 nginx
+docker run -d --name my-nginx -p 81:80 nginx
 ```
-
 `docker run` объединяет команды `docker pull`, `docker create` и `docker start`
+
+![Тут нужен скриншот вывода]()
 
 Если запуск контейнера не удался, то проверьте уже созданные контейнеры с таким именем у себя
 ```shell
 docker ps -a
 ```
-
 ![Тут нужен скриншот](/content/Docker/ImageLibrary/img/12.png)
 
 Показать загруженный на ваш компьютер образ
 ```shell
 docker images
 ```
+![Тут нужен скриншот вывода]()
 
 Показать работающий Nginx
 
 Способ 1
 ```shell
-curl http://localhost/
+curl http://localhost:81/
 ```
-
 ![Скрин вывода curl](img/curl_nginx.png)
 
-Способ 2 - [открыть http://localhost/ адрес в браузере](http://localhost/)
+Способ 2 - [Открыть в браузере приложение из 2-го контейнера по адресу http://localhost:81/](http://localhost:81/)
 
 ![Скрин nginx в браузере](img/web_nginx.png)
 
@@ -119,17 +118,16 @@ curl http://localhost/
 ```shell
 docker pull nginx
 ```
-
 Получить информацию по загруженному образу:
 ```shell
 docker inspect nginx
 ```
+![Тут нужен скриншот вывода]()
 
 При необходимости остановить контейнер с таким именем:
 ```shell
 docker stop my-nginx
 ```
-
 Проверьте остановленное приложение в браузере по тому же адресу, обновив страницу по `Ctrl+R` или `F5`
 
 Перезапустить контейнер по имени
@@ -149,17 +147,15 @@ docker stop my-nginx
 ```shell
 docker rm my-nginx
 ```
-
-![Тут нужен скриншот вывода]()
-
 Если нужно создать ещё один контейнер из этого образа, то:
 ```shell
-docker run -d --name nginx-my -p 81:80 nginx
+docker run -d --name nginx-my -p 82:80 nginx
 ```
+![Тут нужен скриншот вывода]()
 
 > изменить имя и порт приложения!
 
-[Открыть в браузере приложение из 2-го контейнера по адресу http://localhost:81/](http://localhost:81/)
+[Открыть в браузере приложение из 2-го контейнера по адресу http://localhost:82/](http://localhost:82/)
 
 И можно удалить ещё и образ загруженного ранее **Nginx**:
 
@@ -167,26 +163,18 @@ docker run -d --name nginx-my -p 81:80 nginx
 ```shell
 docker images
 ```
-
 Опционально можно удалить по `id` нужный образ
 ```shell
 docker rmi id_образа
 ```
-
 ![Скрин состояния docker images](img/rm_image.png)
 
 ### 4. Проверить работу контейнера
-
-Можно снова установить и запустить Nginx (если его удаляли ранее)
-```shell
-docker run -d --name my-nginx -p 80:80 nginx
-```
 
 Показать наличие загруженного файла образа
 ```shell
 docker images
 ```
-
 ![Скрин образа](img/2_images.png)
 
 Показать только запущенные контейнеры
@@ -209,19 +197,19 @@ docker ps -a
 ```shell
 docker ps -a
 ```
+![Тут нужен скриншот вывода]()
 
 Показать подробности о контейнере
 ```shell
 docker inspect my-nginx
 ```
+![Тут нужен скриншот вывода]()
 
 Запустить мониторинг контейнеров
 ```shell
 docker stats
 ```
-
 ![](img/2_stats.png)
-
 
 > Выйти из мониторинга контейнеров можно по `Ctrl+C`
 
@@ -229,6 +217,7 @@ docker stats
 ```shell
 docker logs my-nginx
 ```
+![Тут нужен скриншот вывода]()
 
 Показать логи в режиме ожидания
 ```shell
@@ -244,12 +233,10 @@ docker logs -f my-nginx
 ```shell
 docker stop my-nginx
 ```
-
 Снова запустить контейнер
 ```shell
 docker start my-nginx
 ```
-
 Перезапустить контейнер
 ```shell
 docker restart my-nginx
@@ -270,8 +257,7 @@ docker exec -it my-nginx /bin/sh
 ```shell
 docker exec -it my-nginx sh
 ```
-
-внутри контейнера можно повыполнять некоторые команды Linux
+Внутри контейнера можно повыполнять некоторые команды Linux
 Получить информацию об ОС контейнера
 ```shell
 uname -a
@@ -305,7 +291,6 @@ apt update && apt install -y fastfetch htop inxi cmatrix hollywood caca-utils mc
 ```shell
 htop
 ```
-
 ![Скрин вывода htop]()
 
 > Выйти из `htop` можно по **Q**
@@ -313,15 +298,14 @@ htop
 ```shell
 cmatrix
 ```
-
 ![Скрин вывода cmatrix]()
 
 > Выйти из `cmatrix` можно по **Q**
 
 ```shell
 cacafire
-```> Выйти из `cmatrix` можно по **Ctrl+C**
-
+```
+> Выйти из `cmatrix` можно по **Ctrl+C**
 
 ```shell
 hollywood
@@ -358,7 +342,7 @@ micro /usr/share/nginx/html/index.html
 ```
 отредайтируйте и сохраните по `Ctrl+S` и выйти из режима редактирования по `Ctrl+Q` или `F4`
 
-[Проверить изменения на открытой странице >>](http://localhost/)
+[Проверить изменения на открытой странице >>](http://localhost:82/)
 
 ![Скрин изменённой страницы в браузере](img/)
 
@@ -366,22 +350,19 @@ micro /usr/share/nginx/html/index.html
 ```shell
 exit
 ```
-
 Остановить все запущенные контейнеры
 ```shell
 docker stop $(docker ps -q)
 ```
-
 Удалить все остановленные контейнеры
 ```shell
 docker container prune $(docker ps -q)
 ```
-
 Удалить все образы
 ```shell
 docker rmi $(docker images -q)
 ```
 
-**Результат оформить в виде отдельного `README.md` со скриншотами результатов ваших действий и прислать ссылку преподавателю.**
+**Результат оформить в виде отдельного `README.md` со скриншотами ваших действий и прислать ссылку преподавателю.**
 
 > Если вы обнаружили ошибку в этом тексте - сообщите пожалуйста автору!
